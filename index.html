@@ -239,6 +239,8 @@ input[type="checkbox"]{width:15px;height:15px;accent-color:var(--cyan);cursor:po
 /* DRE row */
 .dre-row{display:flex;justify-content:space-between;padding:5px 0;font-family:'Share Tech Mono',monospace;font-size:11px;border-bottom:1px solid var(--border2);}
 .dre-row:last-child{border-bottom:none;font-weight:700;font-size:13px;padding-top:10px;}
+/* CAL DAY HOVER */
+#fp-cal-grid div[onclick]:hover{filter:brightness(1.4);transform:scale(1.08);}
 ::-webkit-scrollbar{width:4px;height:4px;}
 ::-webkit-scrollbar-track{background:transparent;}
 ::-webkit-scrollbar-thumb{background:rgba(0,245,255,0.2);border-radius:2px;}
@@ -368,10 +370,13 @@ input[type="checkbox"]{width:15px;height:15px;accent-color:var(--cyan);cursor:po
       </div>
       <div class="fin-tabs">
         <div class="fin-tab active purple" onclick="fpTab('overview')">Visão Geral</div>
-        <div class="fin-tab purple" onclick="fpTab('gastos')">Gastos Fixos</div>
+        <div class="fin-tab purple" onclick="fpTab('receitas')">Receitas</div>
+        <div class="fin-tab purple" onclick="fpTab('todosGastos')">Todos Gastos</div>
+        <div class="fin-tab purple" onclick="fpTab('gastos')">Fixos</div>
         <div class="fin-tab purple" onclick="fpTab('extras')">Extras</div>
         <div class="fin-tab purple" onclick="fpTab('metas')">Metas</div>
         <div class="fin-tab purple" onclick="fpTab('saude')">Saúde Fin.</div>
+        <div class="fin-tab purple" onclick="fpTab('calendario')">📅 Calendário</div>
       </div>
       <div class="fin-panel active" id="fpp-overview">
         <div class="grid3" style="margin-bottom:14px">
@@ -384,6 +389,101 @@ input[type="checkbox"]{width:15px;height:15px;accent-color:var(--cyan);cursor:po
           <div class="ccard purple-accent"><div class="ccard-title">◈ Gastos Esta Semana</div><div class="chart-wrap" style="height:160px"><canvas id="fp-chart-semana"></canvas></div></div>
         </div>
       </div>
+      <!-- ABA: RECEITAS -->
+      <div class="fin-panel" id="fpp-receitas">
+        <div class="grid2">
+          <div>
+            <div class="sec-hdr">
+              <div class="sec-title"><span class="dot dot-g"></span>Histórico de Receitas</div>
+            </div>
+            <div id="fp-receitas-list"></div>
+          </div>
+          <div class="ccard green-accent">
+            <div class="ccard-title">◈ Receitas por Mês</div>
+            <div class="chart-wrap tall"><canvas id="fp-chart-receitas-bar"></canvas></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ABA: TODOS OS GASTOS -->
+      <div class="fin-panel" id="fpp-todosGastos">
+        <div class="grid2" style="margin-bottom:14px">
+          <div class="ccard purple-accent">
+            <div class="ccard-title">◈ Gastos por Categoria</div>
+            <div class="chart-wrap"><canvas id="fp-chart-todos-cat"></canvas></div>
+          </div>
+          <div class="ccard purple-accent">
+            <div class="ccard-title">◈ Gastos por Tipo</div>
+            <div class="chart-wrap"><canvas id="fp-chart-todos-tipo"></canvas></div>
+          </div>
+        </div>
+        <div>
+          <div class="sec-hdr">
+            <div class="sec-title"><span class="dot dot-r"></span>Todos os Gastos</div>
+            <div style="display:flex;gap:8px;align-items:center">
+              <select id="fp-todos-filtro" onchange="renderTodosGastos()" style="width:160px;font-size:10px;padding:5px 8px">
+                <option value="all">Todos os períodos</option>
+                <option value="today">Hoje</option>
+                <option value="week">Esta semana</option>
+                <option value="month" selected>Este mês</option>
+                <option value="last3">Últimos 3 meses</option>
+              </select>
+            </div>
+          </div>
+          <div id="fp-todos-list"></div>
+        </div>
+      </div>
+
+      <!-- ABA: CALENDÁRIO -->
+      <div class="fin-panel" id="fpp-calendario">
+        <div class="grid2" style="margin-bottom:14px">
+          <div class="ccard purple-accent">
+            <div class="ccard-title">◈ Consulta por Período</div>
+            <div style="padding:4px 0 12px">
+              <div class="form-grid" style="margin-bottom:14px">
+                <div class="form-field">
+                  <label>Data Início</label>
+                  <input type="date" id="fp-cal-start" onchange="renderCalendario()">
+                </div>
+                <div class="form-field">
+                  <label>Data Fim</label>
+                  <input type="date" id="fp-cal-end" onchange="renderCalendario()">
+                </div>
+              </div>
+              <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px">
+                <button class="btn btn-cyber-purple btn-sm" onclick="calPreset('today')">Hoje</button>
+                <button class="btn btn-cyber-purple btn-sm" onclick="calPreset('week')">Esta Semana</button>
+                <button class="btn btn-cyber-purple btn-sm" onclick="calPreset('month')">Este Mês</button>
+                <button class="btn btn-cyber-purple btn-sm" onclick="calPreset('last30')">Últimos 30d</button>
+                <button class="btn btn-cyber-purple btn-sm" onclick="calPreset('last3m')">Últimos 3 Meses</button>
+              </div>
+              <!-- Mini calendar grid -->
+              <div id="fp-cal-grid"></div>
+            </div>
+          </div>
+          <div>
+            <div class="ccard purple-accent" style="margin-bottom:14px">
+              <div class="ccard-title">◈ Resumo do Período</div>
+              <div id="fp-cal-resumo"></div>
+            </div>
+            <div class="ccard purple-accent">
+              <div class="ccard-title">◈ Gastos por Categoria no Período</div>
+              <div class="chart-wrap"><canvas id="fp-chart-cal-cat"></canvas></div>
+            </div>
+          </div>
+        </div>
+        <div class="grid2">
+          <div class="ccard purple-accent">
+            <div class="ccard-title">◈ Evolução no Período</div>
+            <div class="chart-wrap"><canvas id="fp-chart-cal-line"></canvas></div>
+          </div>
+          <div class="ccard purple-accent">
+            <div class="ccard-title">◈ Lançamentos no Período</div>
+            <div id="fp-cal-list" style="max-height:220px;overflow-y:auto"></div>
+          </div>
+        </div>
+      </div>
+
       <div class="fin-panel" id="fpp-gastos">
         <div class="grid2">
           <div><div class="sec-hdr"><div class="sec-title"><span class="dot dot-r"></span>Gastos Fixos Mensais</div></div><div id="fp-fixos-list"></div></div>
@@ -724,11 +824,18 @@ function navigate(page){
 
 // ── TABS ──────────────────────────────────────────────────────
 function fpTab(t){
-  const tabs=['overview','gastos','extras','metas','saude'];
+  const tabs=['overview','receitas','todosGastos','gastos','extras','metas','saude','calendario'];
   document.querySelectorAll('#page-finpessoal .fin-tab').forEach((el,i)=>el.classList.toggle('active',tabs[i]===t));
   document.querySelectorAll('[id^="fpp-"]').forEach(p=>p.classList.remove('active'));
   document.getElementById('fpp-'+t).classList.add('active');
-  renderFpCharts();renderFpLists();if(t==='saude')renderFpSaude();
+  if(t==='overview')renderFpCharts();
+  if(t==='receitas')renderFpReceitas();
+  if(t==='todosGastos')renderTodosGastos();
+  if(t==='gastos'){renderFpCharts();renderFpLists();}
+  if(t==='extras')renderFpLists();
+  if(t==='metas'){renderFpLists();renderFpCharts();}
+  if(t==='saude')renderFpSaude();
+  if(t==='calendario')initCalendario();
 }
 function feTab(t){
   const tabs=['overview','despesas','fluxo','impostos'];
@@ -984,6 +1091,267 @@ function renderFpLists(){
           </div>
         </div>`;
       }).join('')+'<div style="margin-top:10px"><button class="btn btn-cyber-green btn-sm" onclick="openModal(\'modal-fpmeta\')">+ Nova Meta</button></div>';
+    }
+  }
+}
+
+// ── ABA RECEITAS ──────────────────────────────────────────────
+function renderFpReceitas(){
+  const sorted=[...db.fpReceitas].sort((a,b)=>b.date.localeCompare(a.date));
+  const el=document.getElementById('fp-receitas-list');
+  if(el){
+    if(!sorted.length){
+      el.innerHTML='<div class="empty"><div class="empty-icon">💚</div>Nenhuma receita registrada<br><br><button class="btn btn-cyber-green btn-sm" onclick="openModal(\'modal-fprec\')">+ Registrar Receita</button></div>';
+    } else {
+      el.innerHTML=sorted.map(r=>`<div class="exp-item" style="border-left-color:var(--green2)">
+        <div class="exp-icon">💰</div>
+        <div class="exp-info">
+          <div class="exp-name">${r.desc}</div>
+          <div class="exp-detail">${fmtDate(r.date)}</div>
+        </div>
+        <div class="exp-val" style="color:var(--green2)">+${fmtMoney(r.val)}</div>
+        <div class="exp-actions"><button class="btn btn-danger btn-sm btn-icon" onclick="deleteFpReceita('${r.id}')">✕</button></div>
+      </div>`).join('')
+      +'<div style="margin-top:10px"><button class="btn btn-cyber-green btn-sm" onclick="openModal(\'modal-fprec\')">+ Nova Receita</button></div>';
+    }
+  }
+  // bar chart receitas por mês
+  const m6=getLast6Months();
+  const mRec=m6.map(m=>db.fpReceitas.filter(r=>r.date.startsWith(m.key)).reduce((a,r)=>a+r.val,0));
+  mkChart('fp-chart-receitas-bar','bar',m6.map(m=>m.label),[{
+    label:'Receita',data:mRec,
+    backgroundColor:'rgba(57,255,20,0.5)',borderColor:'rgba(57,255,20,1)',borderWidth:2,borderRadius:4
+  }],{...GRID_OPTS,...CD,plugins:{...CD.plugins,legend:{display:false}}});
+}
+function deleteFpReceita(id){
+  if(!confirm('Remover receita?'))return;
+  db.fpReceitas=db.fpReceitas.filter(r=>r.id!==id);
+  saveDB();render();renderFpReceitas();toast('Receita removida');
+}
+
+// ── ABA TODOS OS GASTOS ───────────────────────────────────────
+function renderTodosGastos(){
+  const filtro=document.getElementById('fp-todos-filtro');
+  const f=filtro?filtro.value:'month';
+  const mon=thisMonth();
+  const[wS,wE]=thisWeekDates();
+  const todayStr=today();
+  const d3m=new Date();d3m.setMonth(d3m.getMonth()-3);
+  const d3mStr=d3m.toISOString().split('T')[0];
+
+  let gastos=[...db.fpGastos];
+  if(f==='today') gastos=gastos.filter(g=>g.date===todayStr);
+  else if(f==='week') gastos=gastos.filter(g=>g.date>=wS&&g.date<=wE);
+  else if(f==='month') gastos=gastos.filter(g=>g.date.startsWith(mon));
+  else if(f==='last3') gastos=gastos.filter(g=>g.date>=d3mStr);
+  gastos.sort((a,b)=>b.date.localeCompare(a.date));
+
+  // cat doughnut
+  const cats={};gastos.forEach(g=>{cats[g.cat]=(cats[g.cat]||0)+g.val;});
+  const cL=Object.keys(cats).map(k=>CAT_NAMES[k]||k),cD=Object.values(cats);
+  mkChart('fp-chart-todos-cat','doughnut',cL.length?cL:['Sem dados'],[{data:cD.length?cD:[1],backgroundColor:PAL,borderColor:PAL_BORDER,borderWidth:2}],{cutout:'58%',...CD});
+
+  // tipo doughnut
+  const tipos={fixed:0,unplanned:0,variable:0};
+  gastos.forEach(g=>{tipos[g.tipo]=(tipos[g.tipo]||0)+g.val;});
+  mkChart('fp-chart-todos-tipo','doughnut',['Fixo','Não Planejado','Variável'],[{
+    data:[tipos.fixed,tipos.unplanned,tipos.variable],
+    backgroundColor:['rgba(0,245,255,0.7)','rgba(255,145,0,0.7)','rgba(180,0,255,0.7)'],
+    borderColor:['rgba(0,245,255,1)','rgba(255,145,0,1)','rgba(180,0,255,1)'],borderWidth:2
+  }],{cutout:'58%',...CD});
+
+  const el=document.getElementById('fp-todos-list');
+  if(el){
+    if(!gastos.length){
+      el.innerHTML='<div class="empty"><div class="empty-icon">💸</div>Sem gastos no período</div>';
+    } else {
+      const total=gastos.reduce((a,g)=>a+g.val,0);
+      el.innerHTML=`<div style="display:flex;justify-content:space-between;padding:10px 14px;background:rgba(0,0,0,0.3);margin-bottom:8px;font-family:'Share Tech Mono',monospace;font-size:11px;border:1px solid var(--border2)">
+        <span style="color:var(--text3)">${gastos.length} lançamentos</span>
+        <span style="color:var(--red)">Total: -${fmtMoney(total)}</span>
+      </div>`
+      +gastos.map(g=>expHTML(g,'deleteFpGasto')).join('');
+    }
+  }
+}
+
+// ── ABA CALENDÁRIO ────────────────────────────────────────────
+function initCalendario(){
+  const calStart=document.getElementById('fp-cal-start');
+  const calEnd=document.getElementById('fp-cal-end');
+  if(!calStart.value){
+    // default: primeiro e último dia do mês atual
+    const now=new Date();
+    const y=now.getFullYear(),m=String(now.getMonth()+1).padStart(2,'0');
+    calStart.value=`${y}-${m}-01`;
+    const lastDay=new Date(now.getFullYear(),now.getMonth()+1,0).getDate();
+    calEnd.value=`${y}-${m}-${String(lastDay).padStart(2,'0')}`;
+  }
+  renderCalGrid();
+  renderCalendario();
+}
+
+function calPreset(p){
+  const now=new Date();
+  const fmt=d=>d.toISOString().split('T')[0];
+  let s,e;
+  if(p==='today'){s=e=fmt(now);}
+  else if(p==='week'){
+    const day=now.getDay();
+    const mon=new Date(now);mon.setDate(now.getDate()-(day===0?6:day-1));
+    const sun=new Date(mon);sun.setDate(mon.getDate()+6);
+    s=fmt(mon);e=fmt(sun);
+  }
+  else if(p==='month'){
+    const y=now.getFullYear(),m=String(now.getMonth()+1).padStart(2,'0');
+    s=`${y}-${m}-01`;
+    const ld=new Date(now.getFullYear(),now.getMonth()+1,0).getDate();
+    e=`${y}-${m}-${String(ld).padStart(2,'0')}`;
+  }
+  else if(p==='last30'){
+    const d30=new Date(now);d30.setDate(now.getDate()-30);
+    s=fmt(d30);e=fmt(now);
+  }
+  else if(p==='last3m'){
+    const d3=new Date(now);d3.setMonth(now.getMonth()-3);
+    s=fmt(d3);e=fmt(now);
+  }
+  document.getElementById('fp-cal-start').value=s;
+  document.getElementById('fp-cal-end').value=e;
+  renderCalGrid();
+  renderCalendario();
+}
+
+function renderCalGrid(){
+  const startVal=document.getElementById('fp-cal-start').value;
+  const endVal=document.getElementById('fp-cal-end').value;
+  if(!startVal||!endVal) return;
+  const start=new Date(startVal+'T00:00:00');
+  const end=new Date(endVal+'T00:00:00');
+  // show a mini heatmap of the selected month
+  const el=document.getElementById('fp-cal-grid');
+  if(!el) return;
+  // build day-by-day totals map
+  const dayTotals={};
+  db.fpGastos.forEach(g=>{dayTotals[g.date]=(dayTotals[g.date]||0)+g.val;});
+  db.fpReceitas.forEach(r=>{if(!dayTotals['rec_'+r.date])dayTotals['rec_'+r.date]=0;dayTotals['rec_'+r.date]+=r.val;});
+  const maxVal=Math.max(...Object.values(dayTotals).filter(v=>v>0),1);
+
+  // render month grid for start month
+  const y=start.getFullYear(),m=start.getMonth();
+  const monthName=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'][m];
+  const firstDay=new Date(y,m,1).getDay();
+  const totalDays=new Date(y,m+1,0).getDate();
+  const offset=firstDay===0?6:firstDay-1;
+
+  let html=`<div style="margin-top:4px">
+    <div style="font-family:'Orbitron',sans-serif;font-size:10px;color:var(--cyan);letter-spacing:2px;margin-bottom:10px;text-align:center">${monthName} ${y}</div>
+    <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:6px">
+      ${['S','T','Q','Q','S','S','D'].map(d=>`<div style="text-align:center;font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--text3);padding:4px">${d}</div>`).join('')}
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:3px">`;
+
+  for(let i=0;i<offset;i++) html+=`<div></div>`;
+  for(let d=1;d<=totalDays;d++){
+    const dateStr=`${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const gastoVal=dayTotals[dateStr]||0;
+    const recVal=dayTotals['rec_'+dateStr]||0;
+    const inRange=dateStr>=startVal&&dateStr<=endVal;
+    const isToday=dateStr===today();
+    const intensity=gastoVal>0?Math.min(0.9,0.2+0.7*(gastoVal/maxVal)):0;
+    let bg=inRange?'rgba(180,0,255,0.25)':'rgba(255,255,255,0.03)';
+    let border=inRange?'1px solid rgba(180,0,255,0.5)':'1px solid rgba(255,255,255,0.06)';
+    if(gastoVal>0) bg=`rgba(255,23,68,${intensity})`;
+    if(recVal>0&&!gastoVal) bg='rgba(57,255,20,0.3)';
+    if(isToday) border='1px solid var(--cyan)';
+    const title=gastoVal>0?`Gastos: ${fmtMoney(gastoVal)}`:(recVal>0?`Receita: ${fmtMoney(recVal)}`:dateStr);
+    html+=`<div title="${title}" onclick="calClickDay('${dateStr}')" style="text-align:center;padding:5px 2px;border-radius:3px;background:${bg};border:${border};cursor:pointer;transition:all 0.15s;font-family:'Share Tech Mono',monospace;font-size:10px;color:${isToday?'var(--cyan)':'var(--text2)'}">
+      ${d}${gastoVal>0?`<div style="width:4px;height:4px;background:var(--red);border-radius:50%;margin:2px auto 0"></div>`:''}${recVal>0?`<div style="width:4px;height:4px;background:var(--green2);border-radius:50%;margin:2px auto 0"></div>`:''}
+    </div>`;
+  }
+  html+=`</div>
+    <div style="display:flex;gap:14px;margin-top:10px;font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--text3)">
+      <span><span style="display:inline-block;width:8px;height:8px;background:rgba(255,23,68,0.6);border-radius:50%;margin-right:4px"></span>Gastos</span>
+      <span><span style="display:inline-block;width:8px;height:8px;background:rgba(57,255,20,0.6);border-radius:50%;margin-right:4px"></span>Receita</span>
+      <span><span style="display:inline-block;width:8px;height:8px;background:rgba(180,0,255,0.4);border-radius:2px;margin-right:4px"></span>Período selecionado</span>
+    </div>
+  </div>`;
+  el.innerHTML=html;
+}
+
+function calClickDay(dateStr){
+  document.getElementById('fp-cal-start').value=dateStr;
+  document.getElementById('fp-cal-end').value=dateStr;
+  renderCalGrid();
+  renderCalendario();
+}
+
+function renderCalendario(){
+  const s=document.getElementById('fp-cal-start').value;
+  const e=document.getElementById('fp-cal-end').value;
+  renderCalGrid();
+  if(!s||!e) return;
+  const gastos=db.fpGastos.filter(g=>g.date>=s&&g.date<=e);
+  const receitas=db.fpReceitas.filter(r=>r.date>=s&&r.date<=e);
+  const totalGastos=gastos.reduce((a,g)=>a+g.val,0);
+  const totalReceitas=receitas.reduce((a,r)=>a+r.val,0);
+  const saldo=totalReceitas-totalGastos;
+
+  // Resumo
+  const res=document.getElementById('fp-cal-resumo');
+  if(res) res.innerHTML=`<div style="font-family:'Share Tech Mono',monospace;font-size:11px;padding:4px 0">
+    <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border2)"><span style="color:var(--text3)">Período</span><span style="color:var(--text)">${fmtDate(s)}${s!==e?' → '+fmtDate(e):''}</span></div>
+    <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border2)"><span style="color:var(--text3)">Receitas</span><span style="color:var(--green2)">+${fmtMoney(totalReceitas)}</span></div>
+    <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border2)"><span style="color:var(--text3)">Gastos</span><span style="color:var(--red)">-${fmtMoney(totalGastos)}</span></div>
+    <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border2)"><span style="color:var(--text3)">Lançamentos</span><span style="color:var(--text)">${gastos.length+receitas.length} registros</span></div>
+    <div style="display:flex;justify-content:space-between;padding:10px 0;font-size:13px;font-weight:700"><span style="color:var(--text)">Saldo</span><span style="${saldo>=0?'color:var(--green2)':'color:var(--red)'}">${saldo>=0?'+':''}${fmtMoney(saldo)}</span></div>
+  </div>`;
+
+  // Cat chart
+  const cats={};gastos.forEach(g=>{cats[g.cat]=(cats[g.cat]||0)+g.val;});
+  const cL=Object.keys(cats).map(k=>CAT_NAMES[k]||k),cD=Object.values(cats);
+  mkChart('fp-chart-cal-cat','doughnut',cL.length?cL:['Sem gastos'],[{data:cD.length?cD:[1],backgroundColor:PAL,borderColor:PAL_BORDER,borderWidth:2}],{cutout:'58%',...CD});
+
+  // Line evolução dia a dia
+  const allDays=[];
+  const dStart=new Date(s+'T00:00:00'),dEnd=new Date(e+'T00:00:00');
+  for(let d=new Date(dStart);d<=dEnd;d.setDate(d.getDate()+1)){
+    allDays.push(d.toISOString().split('T')[0]);
+  }
+  const dayLabels=allDays.map(d=>{const[,m,dy]=d.split('-');return`${dy}/${m}`;});
+  const dayGastos=allDays.map(d=>gastos.filter(g=>g.date===d).reduce((a,g)=>a+g.val,0));
+  const dayReceitas=allDays.map(d=>receitas.filter(r=>r.date===d).reduce((a,r)=>a+r.val,0));
+  const maxDays=30;
+  const slicedLabels=dayLabels.length>maxDays?dayLabels.slice(-maxDays):dayLabels;
+  const slicedG=dayGastos.length>maxDays?dayGastos.slice(-maxDays):dayGastos;
+  const slicedR=dayReceitas.length>maxDays?dayReceitas.slice(-maxDays):dayReceitas;
+  mkChart('fp-chart-cal-line','bar',slicedLabels,[
+    {label:'Receita',data:slicedR,backgroundColor:'rgba(57,255,20,0.5)',borderColor:'rgba(57,255,20,1)',borderWidth:2,borderRadius:3},
+    {label:'Gastos',data:slicedG,backgroundColor:'rgba(255,23,68,0.5)',borderColor:'rgba(255,23,68,1)',borderWidth:2,borderRadius:3}
+  ],{...GRID_OPTS,...CD,plugins:{...CD.plugins}});
+
+  // Lista lançamentos
+  const lista=document.getElementById('fp-cal-list');
+  if(lista){
+    const allItems=[
+      ...gastos.map(g=>({...g,_tipo:'gasto'})),
+      ...receitas.map(r=>({...r,_tipo:'receita'}))
+    ].sort((a,b)=>b.date.localeCompare(a.date));
+    if(!allItems.length){
+      lista.innerHTML='<div class="empty" style="padding:20px">Sem lançamentos no período</div>';
+    } else {
+      lista.innerHTML=allItems.map(item=>{
+        if(item._tipo==='gasto') return`<div class="exp-item ${item.tipo==='fixed'?'fixed':item.tipo==='unplanned'?'unplanned':'variable'}" style="margin-bottom:5px">
+          <div class="exp-icon">${CAT_ICONS[item.cat]||'◈'}</div>
+          <div class="exp-info"><div class="exp-name" style="font-size:12px">${item.desc}</div><div class="exp-detail">${fmtDate(item.date)} · ${CAT_NAMES[item.cat]||item.cat}</div></div>
+          <div class="exp-val">-${fmtMoney(item.val)}</div>
+        </div>`;
+        else return`<div class="exp-item" style="border-left-color:var(--green2);margin-bottom:5px">
+          <div class="exp-icon">💰</div>
+          <div class="exp-info"><div class="exp-name" style="font-size:12px">${item.desc}</div><div class="exp-detail">${fmtDate(item.date)}</div></div>
+          <div class="exp-val" style="color:var(--green2)">+${fmtMoney(item.val)}</div>
+        </div>`;
+      }).join('');
     }
   }
 }
