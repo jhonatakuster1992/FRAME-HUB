@@ -556,6 +556,7 @@ input[type="checkbox"]{width:15px;height:15px;accent-color:var(--menta);cursor:p
     <div class="nav-item active" onclick="navigate('dashboard')"><span class="nav-icon">◈</span>Dashboard</div>
     <div class="nav-section">Produção</div>
     <div class="nav-item" onclick="navigate('tasks')"><span class="nav-icon">◆</span>Tarefas<span class="nav-badge red" id="badge-tasks">0</span></div>
+    <div class="nav-item" onclick="navigate('pipeline')"><span class="nav-icon">▤</span>Pipeline</div>
     <div class="nav-item" onclick="navigate('agenda')"><span class="nav-icon">◇</span>Agenda</div>
     <div class="nav-section">Clientes</div>
     <div class="nav-item" onclick="navigate('clients')"><span class="nav-icon">◆</span>Clientes<span class="nav-badge grn" id="badge-clients">0</span></div>
@@ -576,6 +577,9 @@ input[type="checkbox"]{width:15px;height:15px;accent-color:var(--menta);cursor:p
     <div class="page-title" id="topbarTitle">DASHBOARD</div>
     <div class="topbar-right">
       <div class="cyber-clock" id="clock">--:--:--</div>
+      <button class="btn btn-ghost btn-sm" onclick="exportBackup()" title="Baixar backup dos dados">⬇ Backup</button>
+      <button class="btn btn-ghost btn-sm" onclick="document.getElementById('backup-file').click()" title="Restaurar backup">⬆ Importar</button>
+      <input type="file" id="backup-file" accept=".json" style="display:none" onchange="importBackup(event)">
       <button class="btn btn-cyber btn-sm" onclick="openPrimaryModal()">+ NOVO</button>
     </div>
   </div>
@@ -612,6 +616,17 @@ input[type="checkbox"]{width:15px;height:15px;accent-color:var(--menta);cursor:p
       </div>
     </div>
 
+    <!-- PIPELINE (KANBAN) -->
+    <div class="page" id="page-pipeline">
+      <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:10px">
+        <div class="ccard"><div class="ccard-title">📝 Roteiro</div><div id="pipe-roteiro"></div></div>
+        <div class="ccard"><div class="ccard-title">🎬 Gravação</div><div id="pipe-gravacao"></div></div>
+        <div class="ccard"><div class="ccard-title">✂ Edição</div><div id="pipe-edicao"></div></div>
+        <div class="ccard"><div class="ccard-title">👁 Revisão</div><div id="pipe-revisao"></div></div>
+        <div class="ccard purple-accent"><div class="ccard-title">✅ Entregue</div><div id="pipe-entregue"></div></div>
+      </div>
+    </div>
+
     <!-- AGENDA -->
     <div class="page" id="page-agenda">
       <div class="ccard"><div class="ccard-title">◇ Agendamentos de Gravação</div><div id="agenda-list"><div class="empty"><div class="empty-icon">◇</div>Nenhum agendamento</div></div></div>
@@ -641,6 +656,15 @@ input[type="checkbox"]{width:15px;height:15px;accent-color:var(--menta);cursor:p
           <table class="cyber-table">
             <thead><tr><th>Cliente</th><th>Telefone</th><th>Email</th><th>Nicho</th><th>Cadastro</th><th></th></tr></thead>
             <tbody id="clients-tbody"><tr><td colspan="6" style="text-align:center;opacity:0.4;padding:24px">Nenhum cliente</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+      <div class="ccard purple-accent" style="margin-top:14px">
+        <div class="ccard-title">📊 Rentabilidade por Cliente</div>
+        <div style="overflow-x:auto">
+          <table class="cyber-table">
+            <thead><tr><th>Cliente</th><th>Horas</th><th>Recebido</th><th>R$/Hora</th></tr></thead>
+            <tbody id="rentabilidade-tbody"><tr><td colspan="4" style="text-align:center;opacity:0.4;padding:20px">Sem dados</td></tr></tbody>
           </table>
         </div>
       </div>
@@ -847,6 +871,7 @@ input[type="checkbox"]{width:15px;height:15px;accent-color:var(--menta);cursor:p
       <div class="form-field"><label>Tipo</label><select id="tk-type"><option value="edicao">Edição</option><option value="gravacao">Gravação</option><option value="entrega">Entrega</option><option value="reuniao">Reunião</option><option value="outro">Outro</option></select></div>
       <div class="form-field"><label>Qtd. Vídeos</label><input type="number" id="tk-videos" min="0" value="1"></div>
       <div class="form-field"><label>Data Limite</label><input type="date" id="tk-date"></div>
+      <div class="form-field"><label>Horas Trabalhadas</label><input type="number" id="tk-horas" min="0" step="0.5" placeholder="0"></div>
       <div class="form-field full"><label>Observações</label><textarea id="tk-notes" placeholder="Detalhes..."></textarea></div>
     </div>
     <div class="modal-actions"><button class="btn btn-ghost" onclick="closeModal('modal-task')">Cancelar</button><button class="btn btn-menta" onclick="saveTask()">Criar</button></div>
@@ -916,6 +941,7 @@ input[type="checkbox"]{width:15px;height:15px;accent-color:var(--menta);cursor:p
       <div class="form-field full"><label>Descrição</label><input type="text" id="fpg-desc" placeholder="Ex: Conta Copel — Junho"></div>
       <div class="form-field"><label>Valor (R$)</label><input type="number" id="fpg-val" placeholder="0.00" min="0" step="0.01"></div>
       <div class="form-field"><label>Data</label><input type="date" id="fpg-date"></div>
+      <div class="form-field"><label>Recorrente?</label><select id="fpg-rec"><option value="nao">Não</option><option value="sim">Sim (todo mês)</option></select></div>
       <div class="form-field full"><label>Observações</label><textarea id="fpg-notes" placeholder="Notas adicionais..." style="min-height:50px"></textarea></div>
     </div>
     <div class="modal-actions"><button class="btn btn-ghost" onclick="closeModal('modal-fpgasto')">Cancelar</button><button class="btn btn-pistache" onclick="saveFpGasto()">Salvar</button></div>
@@ -929,6 +955,7 @@ input[type="checkbox"]{width:15px;height:15px;accent-color:var(--menta);cursor:p
       <div class="form-field full"><label>Descrição</label><input type="text" id="fpr-desc" placeholder="Ex: Salário, Pró-labore, Freelance..."></div>
       <div class="form-field"><label>Valor (R$)</label><input type="number" id="fpr-val" placeholder="0.00" min="0" step="0.01"></div>
       <div class="form-field"><label>Data</label><input type="date" id="fpr-date"></div>
+      <div class="form-field full"><label>Recorrente?</label><select id="fpr-rec"><option value="nao">Não</option><option value="sim">Sim (todo mês)</option></select></div>
     </div>
     <div class="modal-actions"><button class="btn btn-ghost" onclick="closeModal('modal-fprec')">Cancelar</button><button class="btn btn-menta" onclick="saveFpReceita()">Salvar</button></div>
   </div>
@@ -996,6 +1023,144 @@ function loadDB(){
     if(!db.fpMetas) db.fpMetas=[];
     if(!db.feDesp) db.feDesp=[];
   }catch(e){}
+}
+
+// ── FEATURE: BACKUP EXPORT / IMPORT ────────────────────────────
+function exportBackup(){
+  const blob=new Blob([JSON.stringify(db,null,2)],{type:'application/json'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;a.download='frame-backup-'+today()+'.json';
+  document.body.appendChild(a);a.click();document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  showToast('Backup exportado!');
+}
+function importBackup(evt){
+  const file=evt.target.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=e=>{
+    try{
+      const data=JSON.parse(e.target.result);
+      db=Object.assign({clients:[],tasks:[],agenda:[],payments:[],fpGastos:[],fpReceitas:[],fpMetas:[],feDesp:[]},data);
+      saveDB();processRecurring();render();
+      showToast('Backup importado com sucesso!');
+    }catch(err){showToast('Arquivo de backup inválido','err');}
+  };
+  reader.readAsText(file);
+  evt.target.value='';
+}
+
+// ── FEATURE: LEMBRETE DE COBRANÇA VIA WHATSAPP ─────────────────
+function sendWhatsApp(paymentId){
+  const p=db.payments.find(p=>p.id===paymentId);if(!p)return;
+  const c=db.clients.find(c=>c.id===p.clientId);
+  if(!c||!c.phone){showToast('Cliente sem telefone cadastrado','err');return;}
+  const phone=c.phone.replace(/\D/g,'');
+  const d=daysUntil(p.due);
+  const status=d<0?('está atrasado há '+Math.abs(d)+' dia(s)'):(d===0?'vence hoje':'vence em '+fmtDate(p.due));
+  const msg='Olá '+c.name+'! Passando para lembrar sobre o pagamento de '+p.service+' no valor de '+fmtMoney(p.value)+', que '+status+'. Qualquer dúvida, estou à disposição!';
+  const url='https://wa.me/55'+phone+'?text='+encodeURIComponent(msg);
+  window.open(url,'_blank');
+}
+
+// ── FEATURE: LANÇAMENTOS RECORRENTES AUTOMÁTICOS ───────────────
+function processRecurring(){
+  const mon=thisMonth();
+  let changed=false;
+
+  const lastGasto={};
+  db.fpGastos.forEach(g=>{
+    if(!g.recorrente)return;
+    const key=g.desc+'|'+g.cat;
+    if(!lastGasto[key]||g.date>lastGasto[key].date) lastGasto[key]=g;
+  });
+  Object.values(lastGasto).forEach(orig=>{
+    if(!orig.date.startsWith(mon)){
+      const day=orig.date.split('-')[2];
+      const newDate=mon+'-'+day;
+      const exists=db.fpGastos.some(g=>g.recorrente&&g.desc===orig.desc&&g.cat===orig.cat&&g.date.startsWith(mon));
+      if(!exists){
+        db.fpGastos.push({...orig,id:uid(),date:newDate,createdAt:today()});
+        changed=true;
+      }
+    }
+  });
+
+  const lastRec={};
+  db.fpReceitas.forEach(r=>{
+    if(!r.recorrente)return;
+    const key=r.desc;
+    if(!lastRec[key]||r.date>lastRec[key].date) lastRec[key]=r;
+  });
+  Object.values(lastRec).forEach(orig=>{
+    if(!orig.date.startsWith(mon)){
+      const day=orig.date.split('-')[2];
+      const newDate=mon+'-'+day;
+      const exists=db.fpReceitas.some(r=>r.recorrente&&r.desc===orig.desc&&r.date.startsWith(mon));
+      if(!exists){
+        db.fpReceitas.push({...orig,id:uid(),date:newDate,createdAt:today()});
+        changed=true;
+      }
+    }
+  });
+
+  if(changed){saveDB();showToast('Lançamentos recorrentes deste mês adicionados!');}
+}
+
+// ── FEATURE: PIPELINE DE PRODUÇÃO (KANBAN) ─────────────────────
+function buildPipeCard(t){
+  const wrap=document.createElement('div');
+  wrap.style.cssText='background:var(--bg3);border:1px solid var(--bd2);border-radius:6px;padding:8px 10px;margin-bottom:8px;font-size:11px;';
+  const title=document.createElement('div');title.style.cssText='font-weight:600;color:var(--t1);margin-bottom:4px;';title.textContent=t.title;
+  wrap.appendChild(title);
+  if(t.clientId){const cl=document.createElement('div');cl.style.cssText='color:var(--t3);font-size:10px;margin-bottom:6px;';cl.textContent='▸ '+clientName(t.clientId);wrap.appendChild(cl);}
+  const acts=document.createElement('div');acts.style.cssText='display:flex;gap:4px;align-items:center;justify-content:space-between;';
+  const idx=STAGES.indexOf(t.stage||'roteiro');
+  const back=document.createElement('button');back.className='btn btn-ghost btn-sm btn-icon';back.textContent='◂';back.disabled=idx<=0;back.style.opacity=idx<=0?'0.3':'1';back.onclick=()=>moveStage(t.id,-1);
+  const fwd=document.createElement('button');fwd.className='btn btn-cyber btn-sm btn-icon';fwd.textContent='▸';fwd.disabled=idx>=STAGES.length-1;fwd.style.opacity=idx>=STAGES.length-1?'0.3':'1';fwd.onclick=()=>moveStage(t.id,1);
+  const del=document.createElement('button');del.className='btn btn-danger btn-sm btn-icon';del.textContent='✕';del.onclick=()=>deleteTask(t.id);
+  acts.appendChild(back);acts.appendChild(fwd);acts.appendChild(del);
+  wrap.appendChild(acts);
+  return wrap;
+}
+function renderPipeline(){
+  STAGES.forEach(s=>{
+    const el=document.getElementById('pipe-'+s);
+    if(!el)return;
+    el.innerHTML='';
+    const items=db.tasks.filter(t=>(t.stage||'roteiro')===s);
+    if(!items.length){el.innerHTML='<div class="empty" style="padding:14px 4px;font-size:10px">Vazio</div>';return;}
+    items.forEach(t=>el.appendChild(buildPipeCard(t)));
+  });
+}
+function moveStage(id,dir){
+  const t=db.tasks.find(t=>t.id===id);if(!t)return;
+  const idx=STAGES.indexOf(t.stage||'roteiro');
+  const ni=idx+dir;
+  if(ni<0||ni>=STAGES.length)return;
+  t.stage=STAGES[ni];
+  if(t.stage==='entregue')t.done=true;
+  saveDB();render();
+  showToast('Movido para '+STAGE_LABELS[t.stage]);
+}
+
+// ── FEATURE: RENTABILIDADE POR CLIENTE ─────────────────────────
+function renderRentabilidade(){
+  const tb=document.getElementById('rentabilidade-tbody');
+  if(!tb)return;
+  tb.innerHTML='';
+  if(!db.clients.length){tb.innerHTML='<tr><td colspan="4" style="text-align:center;opacity:0.4;padding:20px">Sem dados</td></tr>';return;}
+  db.clients.forEach(c=>{
+    const horas=db.tasks.filter(t=>t.clientId===c.id).reduce((a,t)=>a+(t.horas||0),0);
+    const recebido=db.payments.filter(p=>p.clientId===c.id&&p.paid).reduce((a,p)=>a+p.value,0);
+    const porHora=horas>0?recebido/horas:0;
+    const tr=document.createElement('tr');
+    tr.innerHTML='<td style="font-weight:500">'+c.name+'</td>'
+      +'<td>'+horas.toFixed(1)+'h</td>'
+      +'<td style="color:#21F1A8">'+fmtMoney(recebido)+'</td>'
+      +'<td>'+(horas>0?fmtMoney(porHora):'—')+'</td>';
+    tb.appendChild(tr);
+  });
 }
 
 function updateClock(){const n=new Date();const p=v=>String(v).padStart(2,'0');document.getElementById('clock').textContent=`${p(n.getHours())}:${p(n.getMinutes())}:${p(n.getSeconds())}`;}
@@ -1069,8 +1234,10 @@ function mkChart(id,type,labels,datasets,extra){
 }
 
 // ── NAVIGATION ────────────────────────────────────────────────
-const TITLES={dashboard:'DASHBOARD',tasks:'TAREFAS',agenda:'AGENDA',finance:'PAGAMENTOS',clients:'CLIENTES',finpessoal:'FIN. PESSOAL',finempresa:'FIN. EMPRESA'};
-const MODALS={dashboard:'modal-task',tasks:'modal-task',agenda:'modal-agenda',finance:'modal-payment',clients:'modal-client',finpessoal:'modal-fpgasto',finempresa:'modal-fedesp'};
+const TITLES={dashboard:'DASHBOARD',tasks:'TAREFAS',pipeline:'PIPELINE',agenda:'AGENDA',finance:'PAGAMENTOS',clients:'CLIENTES',finpessoal:'FIN. PESSOAL',finempresa:'FIN. EMPRESA'};
+const MODALS={dashboard:'modal-task',tasks:'modal-task',pipeline:'modal-task',agenda:'modal-agenda',finance:'modal-payment',clients:'modal-client',finpessoal:'modal-fpgasto',finempresa:'modal-fedesp'};
+const STAGES=['roteiro','gravacao','edicao','revisao','entregue'];
+const STAGE_LABELS={roteiro:'Roteiro',gravacao:'Gravação',edicao:'Edição',revisao:'Revisão',entregue:'Entregue'};
 
 function navigate(page){
   currentPage=page;
@@ -1145,9 +1312,9 @@ function saveTask(){
   const title=document.getElementById('tk-title').value.trim();
   const date=document.getElementById('tk-date').value;
   if(!title||!date){showToast('Preencha título e data','err');return;}
-  db.tasks.push({id:uid(),title,clientId:document.getElementById('tk-client').value,type:document.getElementById('tk-type').value,videos:parseInt(document.getElementById('tk-videos').value)||0,date,notes:document.getElementById('tk-notes').value.trim(),done:false,createdAt:today()});
+  db.tasks.push({id:uid(),title,clientId:document.getElementById('tk-client').value,type:document.getElementById('tk-type').value,videos:parseInt(document.getElementById('tk-videos').value)||0,horas:parseFloat(document.getElementById('tk-horas').value)||0,date,notes:document.getElementById('tk-notes').value.trim(),done:false,stage:'roteiro',createdAt:today()});
   saveDB();render();closeModal('modal-task');
-  ['tk-title','tk-date','tk-notes'].forEach(i=>document.getElementById(i).value='');
+  ['tk-title','tk-date','tk-notes','tk-horas'].forEach(i=>document.getElementById(i).value='');
   document.getElementById('tk-videos').value='1';showToast('Tarefa criada!');
 }
 function toggleTask(id){const t=db.tasks.find(t=>t.id===id);if(t){t.done=!t.done;saveDB();render();}}
@@ -1182,7 +1349,7 @@ function saveFpGasto(){
   const desc=document.getElementById('fpg-desc').value.trim();
   const date=document.getElementById('fpg-date').value;
   if(!val||!desc||!date){showToast('Preencha valor, descrição e data','err');return;}
-  db.fpGastos.push({id:uid(),cat:document.getElementById('fpg-cat').value,tipo:document.getElementById('fpg-tipo').value,desc,val,date,notes:document.getElementById('fpg-notes').value.trim(),createdAt:today()});
+  db.fpGastos.push({id:uid(),cat:document.getElementById('fpg-cat').value,tipo:document.getElementById('fpg-tipo').value,desc,val,date,notes:document.getElementById('fpg-notes').value.trim(),recorrente:document.getElementById('fpg-rec').value==='sim',createdAt:today()});
   saveDB();render();renderFpCharts();renderFpLists();renderFpSaude();closeModal('modal-fpgasto');
   ['fpg-desc','fpg-val','fpg-date','fpg-notes'].forEach(i=>document.getElementById(i).value='');
   showToast('Gasto registrado!');
@@ -1194,7 +1361,7 @@ function saveFpReceita(){
   const desc=document.getElementById('fpr-desc').value.trim();
   const date=document.getElementById('fpr-date').value;
   if(!val||!desc||!date){showToast('Preencha todos os campos','err');return;}
-  db.fpReceitas.push({id:uid(),desc,val,date,createdAt:today()});
+  db.fpReceitas.push({id:uid(),desc,val,date,recorrente:document.getElementById('fpr-rec').value==='sim',createdAt:today()});
   saveDB();render();renderFpCharts();renderFpSaude();closeModal('modal-fprec');
   ['fpr-desc','fpr-val','fpr-date'].forEach(i=>document.getElementById(i).value='');
   showToast('Receita registrada!');
@@ -1274,7 +1441,10 @@ function buildPay(p){
   info.appendChild(pn);info.appendChild(pd);wrap.appendChild(info);
   const pv=document.createElement('div');pv.className='pay-value'+(isO?' ov':'');pv.textContent=fmtMoney(p.value);wrap.appendChild(pv);
   const acts=document.createElement('div');acts.className='pay-actions';
-  if(!p.paid){const pb=document.createElement('button');pb.className='btn btn-menta btn-sm';pb.textContent='PAGO ✓';pb.onclick=()=>togglePayment(p.id);acts.appendChild(pb);}
+  if(!p.paid){
+    const wa=document.createElement('button');wa.className='btn btn-cyber-purple btn-sm';wa.textContent='WhatsApp';wa.onclick=()=>sendWhatsApp(p.id);acts.appendChild(wa);
+    const pb=document.createElement('button');pb.className='btn btn-menta btn-sm';pb.textContent='PAGO ✓';pb.onclick=()=>togglePayment(p.id);acts.appendChild(pb);
+  }
   else{const ub=document.createElement('button');ub.className='btn btn-ghost btn-sm';ub.style.fontSize='10px';ub.textContent='desfazer';ub.onclick=()=>togglePayment(p.id);acts.appendChild(ub);}
   const del=document.createElement('button');del.className='btn btn-danger btn-sm btn-icon';del.textContent='✕';del.onclick=()=>deletePayment(p.id);acts.appendChild(del);
   wrap.appendChild(acts);
@@ -1285,7 +1455,7 @@ function expHTML(g,deleteFn){
   const tipoClass={fixed:'fixed',unplanned:'unplanned',variable:'variable'}[g.tipo]||'fixed';
   return '<div class="exp-item '+tipoClass+'">'
     +'<div class="exp-icon">'+( CAT_ICONS[g.cat]||'◈')+'</div>'
-    +'<div class="exp-info"><div class="exp-name">'+g.desc+'</div><div class="exp-detail">'+(CAT_NAMES[g.cat]||g.cat)+' · '+fmtDate(g.date)+'</div></div>'
+    +'<div class="exp-info"><div class="exp-name">'+g.desc+(g.recorrente?' 🔄':'')+'</div><div class="exp-detail">'+(CAT_NAMES[g.cat]||g.cat)+' · '+fmtDate(g.date)+'</div></div>'
     +'<div class="exp-val">-'+fmtMoney(g.val)+'</div>'
     +'<div class="exp-actions"><button class="btn btn-danger btn-sm btn-icon" onclick="'+deleteFn+'(\''+g.id+'\')">✕</button></div>'
     +'</div>';
@@ -1782,9 +1952,12 @@ function render(){
   if(currentPage==='finance')renderMainCharts();
   if(currentPage==='finpessoal'){renderFpCharts();renderFpLists();renderFpSaude();}
   if(currentPage==='finempresa'){renderFeCharts();renderFeLists();}
+  if(currentPage==='pipeline')renderPipeline();
+  if(currentPage==='clients')renderRentabilidade();
 }
 
 loadDB();
+processRecurring();
 render();
 
 </script>
