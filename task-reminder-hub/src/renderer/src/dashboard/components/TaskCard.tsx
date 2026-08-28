@@ -2,7 +2,7 @@ import type { TaskWithMeta } from '@shared/types'
 import { describeRecurrence } from '@shared/recurrence'
 import { NoteCard } from '../../shared/NoteCard'
 import { Icon } from '../../shared/Icon'
-import { fmtRelative, fmtTime } from '../../shared/date'
+import { fmtDayMonth, fmtRelative, fmtTime } from '../../shared/date'
 
 interface Props {
   task: TaskWithMeta
@@ -12,7 +12,9 @@ interface Props {
   onDelete: (task: TaskWithMeta) => void
 }
 
-/** Card de tarefa: mesma anatomia na grade e na lista. */
+const PRIORITY_LABEL = { alta: 'Prioridade alta', media: 'Prioridade média', baixa: 'Prioridade baixa' }
+
+/** Card de tarefa: bloco colorido da agenda, título, horário e rodapé. */
 export function TaskCard({
   task,
   onOpen,
@@ -20,15 +22,21 @@ export function TaskCard({
   onSnooze,
   onDelete
 }: Props): React.JSX.Element {
-  const color = task.category?.color ?? 'var(--accent)'
+  const color = task.category?.color ?? 'var(--violeta)'
   const done = task.status === 'concluida'
   const late = Boolean(task.due_at) && new Date(task.due_at!).getTime() < Date.now() && !done
+  const recurring = task.reminder && task.reminder.recurrence_type !== 'once'
+
+  const stop = (action: () => void) => (event: React.MouseEvent) => {
+    event.stopPropagation()
+    action()
+  }
 
   return (
-    <NoteCard color={color} done={done} className="tcard">
-      <div className="tcard__head">
-        <div className="tcard__heading" onClick={() => onOpen(task)} style={{ cursor: 'pointer' }}>
-          <span className="tcard__cat">
+    <NoteCard done={done} className="jcard" onClick={() => onOpen(task)}>
+      <div className="jcard__top">
+        <div className="jcard__head">
+          <span className="jcard__eyebrow">
             {task.category ? (
               <>
                 <i className="dot" style={{ background: color }} />
@@ -38,52 +46,47 @@ export function TaskCard({
               'Sem agenda'
             )}
           </span>
-          <div className="tcard__title note-card__title">{task.title}</div>
+          <h3 className="jcard__title note-card__title">{task.title}</h3>
         </div>
-        <span className="tcard__tile" style={{ background: color }}>
-          <Icon name={task.reminder && task.reminder.recurrence_type !== 'once' ? 'repetir' : 'tarefas'} />
+        <span className="jcard__tile" style={{ background: color }}>
+          <Icon name={recurring ? 'repetir' : 'tarefas'} className="icon icon--lg" strokeWidth={2} />
         </span>
       </div>
 
-      {task.due_at && (
-        <div className={`tcard__when${late ? ' tcard__when--late' : ''}`}>
-          {fmtTime(new Date(task.due_at))} · {fmtRelative(task.due_at)}
-        </div>
-      )}
+      <div className={`jcard__accent${late ? ' jcard__accent--late' : ''}`}>
+        {task.due_at
+          ? `${fmtDayMonth(new Date(task.due_at))} · ${fmtTime(new Date(task.due_at))}`
+          : 'Sem data marcada'}
+      </div>
 
-      {task.description && <p className="tcard__desc">{task.description}</p>}
+      <p className="jcard__desc">
+        {task.description ??
+          (recurring
+            ? `Lembrete recorrente — ${describeRecurrence({
+                type: task.reminder!.recurrence_type,
+                value: task.reminder!.recurrence_value
+              })}.`
+            : PRIORITY_LABEL[task.priority] + '. Sem descrição.')}
+      </p>
 
-      <div className="tcard__foot">
-        <span className={`chip prio prio--${task.priority}`}>{task.priority}</span>
+      <div className="jcard__foot">
+        <span className="chip">
+          {done ? 'Concluída' : task.status === 'adiada' ? 'Adiada' : task.priority}
+        </span>
 
-        {task.reminder && task.reminder.recurrence_type !== 'once' && (
-          <span className="chip chip--accent">
-            <Icon name="repetir" className="icon icon--sm" />
-            {describeRecurrence({
-              type: task.reminder.recurrence_type,
-              value: task.reminder.recurrence_value
-            })}
-          </span>
-        )}
+        <span className="jcard__place">{task.due_at ? fmtRelative(task.due_at) : '—'}</span>
 
-        {task.status === 'adiada' && <span className="chip">adiada</span>}
-        {!task.due_at && !done && <span className="chip">sem data</span>}
-
-        <div className="tcard__actions">
-          <button
-            className="is-done"
-            title={done ? 'Reabrir' : 'Concluir'}
-            onClick={() => onToggleDone(task)}
-          >
+        <div className="jcard__actions">
+          <button title={done ? 'Reabrir' : 'Concluir'} onClick={stop(() => onToggleDone(task))}>
             <Icon name="check" className="icon icon--sm" />
           </button>
-          <button title="Adiar" onClick={() => onSnooze(task)}>
+          <button title="Adiar" onClick={stop(() => onSnooze(task))}>
             <Icon name="relogio" className="icon icon--sm" />
           </button>
-          <button title="Editar" onClick={() => onOpen(task)}>
+          <button title="Editar" onClick={stop(() => onOpen(task))}>
             <Icon name="editar" className="icon icon--sm" />
           </button>
-          <button className="is-danger" title="Excluir" onClick={() => onDelete(task)}>
+          <button className="is-danger" title="Excluir" onClick={stop(() => onDelete(task))}>
             <Icon name="lixo" className="icon icon--sm" />
           </button>
         </div>

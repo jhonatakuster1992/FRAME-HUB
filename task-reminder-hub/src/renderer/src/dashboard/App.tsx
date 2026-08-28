@@ -12,10 +12,12 @@ import {
   fmtMonthYear,
   monthGrid,
   startOfDay,
+  startOfMonth,
   startOfWeek,
   weekDays
 } from '../shared/date'
 import { Sidebar, type Section } from './components/Sidebar'
+import { SearchPanel, type PeriodFilter } from './components/SearchPanel'
 import { CategoryChips } from './components/CategoryChips'
 import { RightRail } from './components/RightRail'
 import { dayKey } from './components/MiniCalendar'
@@ -28,7 +30,6 @@ import { TimeGrid } from './views/TimeGrid'
 import { MonthView } from './views/MonthView'
 
 type CalView = 'dia' | 'semana' | 'mes'
-type StatusFilter = 'pendentes' | 'todas' | 'concluidas'
 type SortKey = 'proximas' | 'prioridade' | 'recentes'
 
 const CAL_VIEWS: { id: CalView; label: string }[] = [
@@ -37,34 +38,52 @@ const CAL_VIEWS: { id: CalView; label: string }[] = [
   { id: 'mes', label: 'Mês' }
 ]
 
-const STATUS_FILTERS: { id: StatusFilter; label: string }[] = [
-  { id: 'pendentes', label: 'Pendentes' },
-  { id: 'concluidas', label: 'Concluídas' },
-  { id: 'todas', label: 'Todas' }
-]
-
 const PRIORITY_WEIGHT = { alta: 0, media: 1, baixa: 2 } as const
 
 const SECTION_TITLES: Record<Section, { title: string; sub: string }> = {
-  tarefas: { title: 'Suas tarefas', sub: 'Capturadas, agendadas e com lembrete' },
+  tarefas: { title: 'Buscar tarefas', sub: 'Capturadas, agendadas e com lembrete' },
   agenda: { title: 'Agenda', sub: 'Dia, semana e mês — arraste para reagendar' },
-  briefing: { title: 'Briefing', sub: 'Notícias das suas fontes, em voz' },
+  briefing: { title: 'Briefing de notícias', sub: 'Das suas fontes, em voz' },
   produtividade: { title: 'Produtividade', sub: 'O que fecha e o que você adia' },
   ajustes: { title: 'Ajustes', sub: 'Atalho, inicialização e voz' }
 }
 
+/** Recorte de datas de cada filtro do painel de busca. */
+function inPeriod(task: TaskWithMeta, period: PeriodFilter): boolean {
+  if (period === 'todas') return true
+  if (!task.due_at) return false
+  const due = new Date(task.due_at)
+  const today = startOfDay(new Date())
+
+  switch (period) {
+    case 'hoje':
+      return due >= today && due < addDays(today, 1)
+    case 'semana':
+      return due >= today && due < addDays(today, 7)
+    case 'mes':
+      return due >= startOfMonth(new Date()) && due < addMonths(startOfMonth(new Date()), 1)
+    case 'atrasadas':
+      return due < new Date() && task.status !== 'concluida'
+    default:
+      return true
+  }
+}
+
 export function App(): React.JSX.Element {
   const [section, setSection] = useState<Section>('tarefas')
+  const [collapsed, setCollapsed] = useState(false)
   const [calView, setCalView] = useState<CalView>('semana')
   const [reference, setReference] = useState(() => new Date())
   const [search, setSearch] = useState('')
-  const [status, setStatus] = useState<StatusFilter>('pendentes')
+  const [period, setPeriod] = useState<PeriodFilter>('todas')
+  const [showCompleted, setShowCompleted] = useState(false)
+  const [includeUndated, setIncludeUndated] = useState(true)
   const [sort, setSort] = useState<SortKey>('proximas')
   const [density, setDensity] = useState<'grade' | 'linhas'>('grade')
   const [tasks, setTasks] = useState<TaskWithMeta[]>([])
   const [monthTasks, setMonthTasks] = useState<TaskWithMeta[]>([])
   const [upcoming, setUpcoming] = useState<TaskWithMeta[]>([])
-  const [hiddenCategories, setHiddenCategories] = useState<Set<number>>(new Set())
+  const [categoryFilter, setCategoryFilter] = useState<number | null>(null)
   const [editing, setEditing] = useState<{ task: TaskWithMeta | null; date?: Date | null } | null>(
     null
   )
@@ -76,7 +95,7 @@ export function App(): React.JSX.Element {
 
   const isAgenda = section === 'agenda'
 
-  /** Janela de datas que a visao atual precisa carregar. */
+  /** Janela de datas que a visão de agenda precisa carregar. */
   const range = useMemo(() => {
     if (!isAgenda) return null
     switch (calView) {
@@ -105,7 +124,6 @@ export function App(): React.JSX.Element {
 
     void api.tasks.upcoming(5).then(setUpcoming)
 
-    // Marcadores do mini calendario cobrem o mes inteiro, seja qual for a visao.
     const grid = monthGrid(reference)
     void api.tasks
       .list({ from: grid[0].toISOString(), to: addDays(grid[41], 1).toISOString() })
@@ -130,11 +148,11 @@ export function App(): React.JSX.Element {
 
   const visibleTasks = useMemo(() => {
     const filtered = tasks.filter((task) => {
-      if (task.category_id && hiddenCategories.has(task.category_id)) return false
+      if (categoryFilter !== null && task.category_id !== categoryFilter) return false
       if (isAgenda) return true
-      if (status === 'pendentes') return task.status !== 'concluida'
-      if (status === 'concluidas') return task.status === 'concluida'
-      return true
+      if (!showCompleted && task.status === 'concluida') return false
+      if (!includeUndated && !task.due_at) return false
+      return inPeriod(task, period)
     })
 
     const sorted = [...filtered]
@@ -150,7 +168,7 @@ export function App(): React.JSX.Element {
       return a.due_at.localeCompare(b.due_at)
     })
     return sorted
-  }, [tasks, hiddenCategories, isAgenda, status, sort])
+  }, [tasks, categoryFilter, isAgenda, showCompleted, includeUndated, period, sort])
 
   const markedDays = useMemo(() => {
     const marks = new Set<string>()
@@ -196,54 +214,62 @@ export function App(): React.JSX.Element {
     void action(task.id).then(reload)
   }
 
-  const showsRail = section === 'tarefas' || isAgenda
+  const showsRail = isAgenda
   const header = SECTION_TITLES[section]
 
   return (
-    <div className="shell">
+    <div className={`shell${collapsed ? ' shell--compacta' : ''}`}>
       <Sidebar
         section={section}
         onSection={setSection}
         pendingCount={monthTasks.filter((task) => task.status !== 'concluida').length}
         hotkey={settings?.globalHotkey ?? 'Ctrl+Alt+Space'}
+        collapsed={collapsed}
         theme={settings?.theme}
         onTheme={(theme) => updateSettings({ theme })}
       />
 
       <div className="content">
         <header className="topbar">
+          <button
+            className="topbar__menu"
+            onClick={() => setCollapsed((value) => !value)}
+            aria-label="Recolher menu"
+          >
+            <Icon name="menu" className="icon icon--lg" strokeWidth={2.2} />
+          </button>
           <div>
-            <h1 className="topbar__title display">{header.title}</h1>
+            <h1 className="topbar__title">{header.title}</h1>
             <p className="topbar__sub">{header.sub}</p>
           </div>
 
-          {showsRail && (
-            <div className="searchbox">
-              <Icon name="busca" className="icon icon--sm searchbox__icon" />
-              <input
-                value={search}
-                onChange={(event) => setSearch(event.target.value)}
-                placeholder="Buscar tarefa, descrição ou agenda…"
-                aria-label="Buscar"
-              />
-            </div>
-          )}
+          <div className="topbar__search">
+            <input
+              value={search}
+              onChange={(event) => setSearch(event.target.value)}
+              placeholder="Busque alguma coisa aqui…"
+              aria-label="Buscar"
+            />
+            <Icon name="busca" className="icon icon--sm topbar__search-icon" />
+          </div>
 
           <button
-            className="icon-btn"
+            className="round-btn"
             title={`${overdue} tarefa(s) atrasada(s)`}
             onClick={() => {
               setSection('tarefas')
-              setStatus('pendentes')
-              setSort('proximas')
+              setPeriod('atrasadas')
             }}
-            style={{ marginLeft: showsRail ? undefined : 'auto' }}
           >
             <Icon name="sino" />
-            {overdue > 0 && <span className="icon-btn__badge">{overdue}</span>}
+            {overdue > 0 && <span className="round-btn__badge">{overdue}</span>}
           </button>
 
-          <button className="icon-btn" title="Post-it flutuante" onClick={() => void api.window.togglePostit()}>
+          <button
+            className="round-btn"
+            title="Post-it flutuante"
+            onClick={() => void api.window.togglePostit()}
+          >
             <Icon name="janela" />
           </button>
 
@@ -253,62 +279,63 @@ export function App(): React.JSX.Element {
         </header>
 
         <div
-          className={[
-            'body',
-            showsRail ? '' : 'body--full',
-            isAgenda ? 'body--fixed' : ''
-          ]
+          className={['body', showsRail ? '' : 'body--full', isAgenda ? 'body--fixa' : '']
             .filter(Boolean)
             .join(' ')}
         >
           <div className="main-col">
             {section === 'tarefas' && (
               <>
-                <div className="panel">
-                  <div className="seg">
-                    {STATUS_FILTERS.map((item) => (
-                      <button
-                        key={item.id}
-                        aria-pressed={status === item.id}
-                        onClick={() => setStatus(item.id)}
-                      >
-                        {item.label}
-                      </button>
-                    ))}
-                  </div>
-                  <div className="panel__field panel__field--grow">
-                    <Icon name="filtro" className="icon icon--sm" />
-                    <span style={{ fontSize: 12.5 }}>
-                      {search ? `Filtrando por “${search}”` : 'Sem filtro de texto'}
-                    </span>
-                  </div>
-                  <button className="btn btn--soft" onClick={() => setSection('agenda')}>
-                    <Icon name="agenda" className="icon icon--sm" /> Ver na agenda
-                  </button>
-                </div>
+                <SearchPanel
+                  period={period}
+                  onPeriod={setPeriod}
+                  search={search}
+                  onSearch={setSearch}
+                  onClear={() => {
+                    setSearch('')
+                    setPeriod('todas')
+                    setCategoryFilter(null)
+                  }}
+                  onSubmit={reload}
+                />
 
                 <CategoryChips
                   categories={categories}
-                  hidden={hiddenCategories}
+                  selected={categoryFilter}
+                  total={tasks.length}
                   counts={counts}
-                  onToggle={(id) =>
-                    setHiddenCategories((current) => {
-                      const next = new Set(current)
-                      if (next.has(id)) next.delete(id)
-                      else next.add(id)
-                      return next
-                    })
-                  }
+                  onSelect={setCategoryFilter}
+                  allowCreate
                 />
 
                 <div className="results">
                   <div>
-                    <h2 className="results__count display">
+                    <h2 className="results__count">
                       Mostrando {visibleTasks.length} tarefa{visibleTasks.length === 1 ? '' : 's'}
                     </h2>
                     <p className="results__hint">Conforme seus filtros e agendas ativas</p>
                   </div>
+
                   <div className="results__tools">
+                    <label className="switch">
+                      <input
+                        type="checkbox"
+                        checked={showCompleted}
+                        onChange={(event) => setShowCompleted(event.target.checked)}
+                      />
+                      <span className="switch__track" />
+                      Concluídas
+                    </label>
+                    <label className="switch">
+                      <input
+                        type="checkbox"
+                        checked={includeUndated}
+                        onChange={(event) => setIncludeUndated(event.target.checked)}
+                      />
+                      <span className="switch__track" />
+                      Sem data
+                    </label>
+
                     <select
                       className="select"
                       value={sort}
@@ -317,22 +344,23 @@ export function App(): React.JSX.Element {
                     >
                       <option value="proximas">Mais próximas</option>
                       <option value="prioridade">Prioridade</option>
-                      <option value="recentes">Criadas recentemente</option>
+                      <option value="recentes">Mais recentes</option>
                     </select>
+
                     <div className="view-toggle">
-                      <button
-                        aria-pressed={density === 'grade'}
-                        onClick={() => setDensity('grade')}
-                        title="Grade"
-                      >
-                        <Icon name="grade" className="icon icon--sm" />
-                      </button>
                       <button
                         aria-pressed={density === 'linhas'}
                         onClick={() => setDensity('linhas')}
                         title="Lista"
                       >
                         <Icon name="linhas" className="icon icon--sm" />
+                      </button>
+                      <button
+                        aria-pressed={density === 'grade'}
+                        onClick={() => setDensity('grade')}
+                        title="Grade"
+                      >
+                        <Icon name="grade" className="icon icon--sm" />
                       </button>
                     </div>
                   </div>
@@ -351,19 +379,32 @@ export function App(): React.JSX.Element {
 
             {isAgenda && (
               <>
-                <div className="panel">
-                  <button className="btn" onClick={() => setReference(new Date())}>
+                <div className="searchpanel">
+                  <button className="btn btn--soft" onClick={() => setReference(new Date())}>
                     Hoje
                   </button>
-                  <div className="nav-pair">
-                    <button onClick={() => step(-1)} aria-label="Período anterior">
-                      <Icon name="esquerda" className="icon icon--sm" />
-                    </button>
-                    <button onClick={() => step(1)} aria-label="Próximo período">
-                      <Icon name="direita" className="icon icon--sm" />
-                    </button>
-                  </div>
-                  <span className="panel__period">{periodLabel()}</span>
+                  <button
+                    className="round-btn"
+                    style={{ width: 40, height: 40, boxShadow: 'none' }}
+                    onClick={() => step(-1)}
+                    aria-label="Período anterior"
+                  >
+                    <Icon name="esquerda" className="icon icon--sm" />
+                  </button>
+                  <button
+                    className="round-btn"
+                    style={{ width: 40, height: 40, boxShadow: 'none' }}
+                    onClick={() => step(1)}
+                    aria-label="Próximo período"
+                  >
+                    <Icon name="direita" className="icon icon--sm" />
+                  </button>
+                  <span
+                    className="searchpanel__seg"
+                    style={{ fontSize: 15, fontWeight: 600, color: 'var(--text)' }}
+                  >
+                    {periodLabel()}
+                  </span>
                   <div className="seg" style={{ marginLeft: 'auto' }}>
                     {CAL_VIEWS.map((item) => (
                       <button
@@ -379,16 +420,10 @@ export function App(): React.JSX.Element {
 
                 <CategoryChips
                   categories={categories}
-                  hidden={hiddenCategories}
+                  selected={categoryFilter}
+                  total={tasks.length}
                   counts={counts}
-                  onToggle={(id) =>
-                    setHiddenCategories((current) => {
-                      const next = new Set(current)
-                      if (next.has(id)) next.delete(id)
-                      else next.add(id)
-                      return next
-                    })
-                  }
+                  onSelect={setCategoryFilter}
                 />
 
                 {calView === 'mes' ? (

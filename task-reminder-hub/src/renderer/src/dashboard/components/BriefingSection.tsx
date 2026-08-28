@@ -158,7 +158,7 @@ export function BriefingSection({ categories }: Props): React.JSX.Element {
         <>
           <form className="panel" onSubmit={addSource} style={{ boxShadow: 'none' }}>
             <div className="panel__field panel__field--grow">
-              <Icon name="briefing" className="icon icon--sm" />
+              <Icon name="chat" className="icon icon--sm" />
               <input
                 placeholder="Nome da fonte"
                 value={name}

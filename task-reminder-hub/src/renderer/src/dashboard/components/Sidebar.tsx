@@ -1,15 +1,15 @@
 import type { AppSettings } from '@shared/types'
-import { BrandMark, Icon, type IconName } from '../../shared/Icon'
+import { BrandMark, NavIcon, type NavIconName } from '../../shared/Icon'
 import { ThemeSwitch } from '../../shared/ThemeSwitch'
 
-export type Section = 'tarefas' | 'agenda' | 'briefing' | 'produtividade' | 'ajustes'
+export type Section = NavIconName
 
-const ITEMS: { id: Section; label: string; icon: IconName }[] = [
-  { id: 'tarefas', label: 'Tarefas', icon: 'tarefas' },
-  { id: 'agenda', label: 'Agenda', icon: 'agenda' },
-  { id: 'briefing', label: 'Briefing', icon: 'briefing' },
-  { id: 'produtividade', label: 'Produtividade', icon: 'grafico' },
-  { id: 'ajustes', label: 'Ajustes', icon: 'ajustes' }
+const ITEMS: { id: Section; label: string }[] = [
+  { id: 'tarefas', label: 'Tarefas' },
+  { id: 'agenda', label: 'Agenda' },
+  { id: 'briefing', label: 'Briefing' },
+  { id: 'produtividade', label: 'Produtividade' },
+  { id: 'ajustes', label: 'Ajustes' }
 ]
 
 interface Props {
@@ -17,27 +17,30 @@ interface Props {
   onSection: (section: Section) => void
   pendingCount: number
   hotkey: string
+  collapsed: boolean
   theme: AppSettings['theme'] | undefined
   onTheme: (theme: AppSettings['theme']) => void
 }
 
-/** Barra lateral: navegacao entre secoes + escolha de tema. */
 export function Sidebar({
   section,
   onSection,
   pendingCount,
   hotkey,
+  collapsed,
   theme,
   onTheme
 }: Props): React.JSX.Element {
   return (
     <nav className="nav">
       <div className="nav__brand">
-        <BrandMark size={36} />
-        <span className="nav__wordmark">
-          <span className="nav__name">Task Hub</span>
-          <span className="nav__tagline">tarefas &amp; lembretes</span>
-        </span>
+        <BrandMark size={collapsed ? 40 : 44} />
+        {!collapsed && (
+          <span className="nav__wordmark">
+            <span className="nav__name">Tasker</span>
+            <span className="nav__tagline">tarefas &amp; lembretes</span>
+          </span>
+        )}
       </div>
 
       <div className="nav__items">
@@ -47,10 +50,11 @@ export function Sidebar({
             className={`nav__item${section === item.id ? ' nav__item--active' : ''}`}
             onClick={() => onSection(item.id)}
             aria-current={section === item.id ? 'page' : undefined}
+            title={collapsed ? item.label : undefined}
           >
-            <Icon name={item.icon} />
-            {item.label}
-            {item.id === 'tarefas' && pendingCount > 0 && (
+            <NavIcon name={item.id} />
+            {!collapsed && item.label}
+            {!collapsed && item.id === 'tarefas' && pendingCount > 0 && (
               <span className="nav__badge">{pendingCount}</span>
             )}
           </button>
@@ -58,12 +62,18 @@ export function Sidebar({
       </div>
 
       <div className="nav__foot">
-        <p className="nav__hint">
-          <b>Captura rápida</b>
-          <br />
-          <kbd>{hotkey.replace('CommandOrControl', 'Ctrl')}</kbd> em qualquer lugar do Windows.
-        </p>
-        <ThemeSwitch value={theme} onChange={onTheme} tone="nav" />
+        {!collapsed && (
+          <p className="nav__credit">
+            <b>Captura rápida</b>
+            <kbd>{hotkey.replace('CommandOrControl', 'Ctrl')}</kbd> em qualquer lugar
+            <br />
+            do Windows — digita, Enter, some.
+          </p>
+        )}
+        <div className="nav__foot-row">
+          <ThemeSwitch value={theme} onChange={onTheme} tone="nav" />
+          {!collapsed && <span className="nav__dots" />}
+        </div>
       </div>
     </nav>
   )

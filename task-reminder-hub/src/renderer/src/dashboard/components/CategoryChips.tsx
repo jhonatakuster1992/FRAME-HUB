@@ -5,19 +5,23 @@ import { Icon } from '../../shared/Icon'
 
 interface Props {
   categories: Category[]
-  hidden: Set<number>
+  selected: number | null
+  total: number
   counts: Map<number, number>
-  onToggle: (id: number) => void
+  onSelect: (id: number | null) => void
+  allowCreate?: boolean
 }
 
-const PALETTE = ['#7C3AED', '#F59E0B', '#10B981', '#F43F5E', '#0EA5E9', '#EC4899']
+const PALETTE = ['#4A21C7', '#FF7A29', '#22C55E', '#EC4899', '#3B82F6', '#14B8A6']
 
-/** Agendas como pilulas — ligar/desligar filtra calendario e lista. */
+/** Linha de sugestões: filtra por agenda, uma de cada vez. */
 export function CategoryChips({
   categories,
-  hidden,
+  selected,
+  total,
   counts,
-  onToggle
+  onSelect,
+  allowCreate = false
 }: Props): React.JSX.Element {
   const [name, setName] = useState('')
   const [color, setColor] = useState(PALETTE[categories.length % PALETTE.length])
@@ -33,16 +37,23 @@ export function CategoryChips({
 
   return (
     <div className="chips">
-      <span className="chips__label">Agendas:</span>
+      <span className="chips__label">Sugestões:</span>
+
+      <button
+        className={`chip-toggle${selected === null ? ' chip-toggle--on' : ''}`}
+        onClick={() => onSelect(null)}
+      >
+        Todas
+        <span className="chip-toggle__count">{total}</span>
+      </button>
 
       {categories.map((category) => {
-        const on = !hidden.has(category.id)
+        const on = selected === category.id
         return (
           <button
             key={category.id}
             className={`chip-toggle${on ? ' chip-toggle--on' : ''}`}
-            onClick={() => onToggle(category.id)}
-            title={on ? 'Ocultar desta visão' : 'Mostrar nesta visão'}
+            onClick={() => onSelect(on ? null : category.id)}
           >
             <i className="dot" style={{ background: on ? '#fff' : category.color }} />
             {category.name}
@@ -51,6 +62,7 @@ export function CategoryChips({
         )
       })}
 
+      {allowCreate && (
       <form className="chip-add" onSubmit={add}>
         <input
           value={name}
@@ -64,10 +76,11 @@ export function CategoryChips({
           onChange={(event) => setColor(event.target.value)}
           aria-label="Cor da agenda"
         />
-        <button className="icon-btn" style={{ width: 28, height: 28 }} type="submit" aria-label="Criar agenda">
+        <button type="submit" aria-label="Criar agenda">
           <Icon name="mais" className="icon icon--sm" />
         </button>
       </form>
+      )}
     </div>
   )
 }
