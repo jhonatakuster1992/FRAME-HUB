@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react'
 import type { TaskWithMeta } from '@shared/types'
 import { api } from '../shared/api'
 import { NoteCard } from '../shared/NoteCard'
+import { Icon } from '../shared/Icon'
 import { useAppEvent, useSettings, useTheme } from '../shared/hooks'
 import { fmtRelative } from '../shared/date'
 
@@ -13,7 +14,7 @@ export function App(): React.JSX.Element {
   const [tasks, setTasks] = useState<TaskWithMeta[]>([])
   const [draft, setDraft] = useState('')
   const [flash, setFlash] = useState(false)
-  const [settings] = useSettings()
+  const [settings, updateSettings] = useSettings()
   useTheme(settings?.theme)
 
   const reload = useCallback(() => {
@@ -47,29 +48,38 @@ export function App(): React.JSX.Element {
     reload()
   }
 
-  // A cor da aba segue a categoria da tarefa mais proxima.
-  const activeColor = tasks[0]?.category?.color ?? 'var(--marmelada)'
+  // A faixa do topo segue a cor da agenda da tarefa mais proxima.
+  const activeColor = tasks[0]?.category?.color ?? 'var(--accent)'
+  const isDark = settings?.theme === 'escuro'
 
   return (
     <div className={`postit${flash ? ' postit--flash' : ''}`}>
       <div className="postit__bar" style={{ background: activeColor }} />
 
       <header className="postit__head">
-        <span className="postit__title">Post-it</span>
+        <span className="postit__title">Pendências</span>
+        <span className="postit__count">{tasks.length}</span>
         <div className="postit__actions">
+          <button
+            className="postit__icon-btn"
+            title={isDark ? 'Modo claro' : 'Modo escuro'}
+            onClick={() => updateSettings({ theme: isDark ? 'claro' : 'escuro' })}
+          >
+            <Icon name={isDark ? 'sol' : 'lua'} className="icon icon--sm" />
+          </button>
           <button
             className="postit__icon-btn"
             title="Abrir dashboard"
             onClick={() => void api.window.openDashboard()}
           >
-            ▤
+            <Icon name="janela" className="icon icon--sm" />
           </button>
           <button
             className="postit__icon-btn"
             title="Esconder post-it"
             onClick={() => void api.window.togglePostit()}
           >
-            ✕
+            <Icon name="fechar" className="icon icon--sm" />
           </button>
         </div>
       </header>
@@ -106,13 +116,13 @@ export function App(): React.JSX.Element {
                   className="mini-btn"
                   onClick={() => void api.tasks.complete(task.id).then(reload)}
                 >
-                  Concluir
+                  <Icon name="check" className="icon icon--sm" /> Concluir
                 </button>
                 <button
                   className="mini-btn mini-btn--snooze"
                   onClick={() => void api.tasks.snooze(task.id).then(reload)}
                 >
-                  Adiar
+                  <Icon name="relogio" className="icon icon--sm" /> Adiar
                 </button>
               </div>
             </NoteCard>
@@ -121,12 +131,15 @@ export function App(): React.JSX.Element {
       </div>
 
       <form className="postit__capture" onSubmit={submit}>
-        <input
-          value={draft}
-          onChange={(event) => setDraft(event.target.value)}
-          placeholder="Capturar…  #Loja !alta @amanha 09:00"
-          aria-label="Captura rápida"
-        />
+        <div className="postit__capture-field">
+          <Icon name="mais" className="icon icon--sm" />
+          <input
+            value={draft}
+            onChange={(event) => setDraft(event.target.value)}
+            placeholder="Capturar…  #Loja !alta @amanha 09:00"
+            aria-label="Captura rápida"
+          />
+        </div>
         <p className="postit__hint">#categoria · !prioridade · @quando · *recorrência</p>
       </form>
     </div>

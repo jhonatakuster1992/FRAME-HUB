@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import type { Category, HistoryEntry, Priority, RecurrenceType, TaskInput, TaskWithMeta } from '@shared/types'
 import { api } from '../../shared/api'
+import { Icon } from '../../shared/Icon'
 import { useEscape } from '../../shared/hooks'
 import { fmtRelative, toLocalInput, fromLocalInput } from '../../shared/date'
 import { RecurrenceEditor } from './RecurrenceEditor'
@@ -101,8 +102,8 @@ export function TaskDialog({
       <form className="modal" onSubmit={save}>
         <header className="modal__head">
           <h2 className="modal__title display">{task ? 'Editar tarefa' : 'Nova tarefa'}</h2>
-          <button type="button" className="btn btn--ghost" onClick={onClose}>
-            ✕
+          <button type="button" className="icon-btn" onClick={onClose} aria-label="Fechar">
+            <Icon name="fechar" className="icon icon--sm" />
           </button>
         </header>
 
@@ -189,13 +190,16 @@ export function TaskDialog({
             </div>
           </div>
 
-          <label style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13 }}>
+          <label className="switch-row">
             <input
               type="checkbox"
               checked={hasReminder}
               onChange={(event) => setHasReminder(event.target.checked)}
             />
-            Avisar com notificação
+            <span>
+              Avisar com notificação
+              <small>Toast do Windows com Concluir, Adiar e Abrir.</small>
+            </span>
           </label>
 
           {hasReminder && (
@@ -210,12 +214,13 @@ export function TaskDialog({
           )}
 
           {task?.reminder?.next_trigger_at && (
-            <p style={{ fontSize: 12, color: 'var(--text-faint)', margin: 0 }}>
-              Próximo aviso: {fmtRelative(task.reminder.next_trigger_at)}
+            <p className="section__sub" style={{ margin: 0 }}>
+              <Icon name="relogio" className="icon icon--sm" /> Próximo aviso:{' '}
+              {fmtRelative(task.reminder.next_trigger_at)}
             </p>
           )}
 
-          {error && <p style={{ color: 'var(--ceramica)', fontSize: 12.5, margin: 0 }}>{error}</p>}
+          {error && <p style={{ color: 'var(--danger)', fontSize: 12.5, margin: 0 }}>{error}</p>}
 
           {history.length > 0 && (
             <details>

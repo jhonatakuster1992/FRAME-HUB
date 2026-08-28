@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react'
+import { Icon } from '../../shared/Icon'
 import {
   addMonths,
   fmtMonthYear,
@@ -20,7 +21,7 @@ export const dayKey = (date: Date): string =>
     date.getDate()
   ).padStart(2, '0')}`
 
-/** Mini calendario navegador da sidebar, como o do Google Agenda. */
+/** Mini calendario navegador, no espirito do calendario lateral classico. */
 export function MiniCalendar({ selected, onSelect, markedDays }: Props): React.JSX.Element {
   const [reference, setReference] = useState(() => startOfMonth(selected))
   const days = useMemo(() => monthGrid(reference), [reference])
@@ -34,14 +35,14 @@ export function MiniCalendar({ selected, onSelect, markedDays }: Props): React.J
           onClick={() => setReference(addMonths(reference, -1))}
           aria-label="Mês anterior"
         >
-          ‹
+          <Icon name="esquerda" className="icon icon--sm" />
         </button>
         <button
           className="mini-cal__nav"
           onClick={() => setReference(addMonths(reference, 1))}
           aria-label="Próximo mês"
         >
-          ›
+          <Icon name="direita" className="icon icon--sm" />
         </button>
       </div>
 

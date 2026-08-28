@@ -118,7 +118,7 @@ export function RecurrenceEditor({ type, value, onChange }: Props): React.JSX.El
 
       {type === 'weekly' && (
         <div className="form-row" style={{ marginTop: 8 }}>
-          <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap', flex: 2 }}>
+          <div className="weekday-pick" style={{ flex: 2 }}>
             {WEEKDAYS.map((label, index) => {
               const [daysPart, time] = splitAt(value, '1')
               const days = daysPart.split(',').filter(Boolean).map(Number)
@@ -127,12 +127,7 @@ export function RecurrenceEditor({ type, value, onChange }: Props): React.JSX.El
                 <button
                   key={label}
                   type="button"
-                  className="btn"
-                  style={
-                    active
-                      ? { background: 'var(--accent)', color: '#2A1B02', borderColor: 'transparent' }
-                      : undefined
-                  }
+                  aria-pressed={active}
                   onClick={() => {
                     const next = active ? days.filter((d) => d !== index) : [...days, index]
                     set(`${next.sort((a, b) => a - b).join(',') || '1'}@${time}`)

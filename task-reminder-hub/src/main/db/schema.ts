@@ -90,10 +90,10 @@ export const MIGRATIONS: Migration[] = [
 /** Categorias e feeds de estreia — so entram em banco vazio. */
 export const SEED = {
   categories: [
-    { name: 'Pessoal', color: '#E8A33D' },
-    { name: 'Loja', color: '#E1614A' },
-    { name: 'Freelance', color: '#2F7B6E' },
-    { name: 'Notícias', color: '#8B7FD1' }
+    { name: 'Pessoal', color: '#7C3AED' },
+    { name: 'Loja', color: '#F59E0B' },
+    { name: 'Freelance', color: '#10B981' },
+    { name: 'Notícias', color: '#0EA5E9' }
   ],
   newsSources: [
     { name: 'Google Notícias — IA', feed_url: 'https://news.google.com/rss/search?q=intelig%C3%AAncia+artificial&hl=pt-BR&gl=BR&ceid=BR:pt-419' },

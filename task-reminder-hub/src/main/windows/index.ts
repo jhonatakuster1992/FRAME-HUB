@@ -39,7 +39,7 @@ export function createDashboard(show = true): BrowserWindow {
     minWidth: 940,
     minHeight: 620,
     show: false,
-    backgroundColor: '#FAF7F2',
+    backgroundColor: '#F3F4FB',
     title: 'Task & Reminder Hub',
     autoHideMenuBar: true,
     webPreferences: { preload: PRELOAD, sandbox: false }

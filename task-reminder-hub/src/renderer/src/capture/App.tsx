@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { parseQuickCapture } from '@shared/quick-parse'
 import { describeRecurrence } from '@shared/recurrence'
 import { api } from '../shared/api'
+import { Icon } from '../shared/Icon'
 import { useEscape, useSettings, useTheme } from '../shared/hooks'
 import { fmtRelative } from '../shared/date'
 
@@ -56,15 +57,18 @@ export function App(): React.JSX.Element {
   return (
     <form className="capture" onSubmit={submit}>
       <div className="capture__bar" />
-      <input
-        ref={inputRef}
-        className="capture__input"
-        value={text}
-        onChange={(event) => setText(event.target.value)}
-        placeholder="O que precisa acontecer?"
-        aria-label="Captura rápida"
-        autoFocus
-      />
+      <div className="capture__row">
+        <Icon name="mais" className="icon icon--lg" />
+        <input
+          ref={inputRef}
+          className="capture__input"
+          value={text}
+          onChange={(event) => setText(event.target.value)}
+          placeholder="O que precisa acontecer?"
+          aria-label="Captura rápida"
+          autoFocus
+        />
+      </div>
       <div className="capture__foot">
         <div className="capture__preview">
           {error && <span className="capture__warn">{error}</span>}

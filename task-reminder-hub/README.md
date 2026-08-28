@@ -37,9 +37,25 @@ npm run dist       # gera dist/Task Reminder Hub-0.1.0-setup.exe
 |---|---|---|
 | Post-it | `src/renderer/src/postit` | Sem moldura, always-on-top, pendências + captura embutida |
 | Captura rápida | `src/renderer/src/capture` | Abre no atalho global, digita, Enter, some |
-| Dashboard | `src/renderer/src/dashboard` | Lista + Dia/Semana/Mês, sidebar, briefing, estatísticas |
+| Dashboard | `src/renderer/src/dashboard` | Tarefas, Agenda, Briefing, Produtividade e Ajustes |
 
-Atalho global padrão: **Ctrl+Alt+Espaço** (configurável em Configurações).
+Atalho global padrão: **Ctrl+Alt+Espaço** (configurável em Ajustes).
+
+## Aparência
+
+Violeta profundo sobre superfícies flutuantes: barra lateral em degradê,
+cartões de canto largo, pílulas para agendas e filtros.
+
+O tema é escolha explícita — **claro, escuro ou seguir o sistema** — pelo
+alternador no rodapé da barra lateral, em Ajustes ou no botão do post-it. A
+preferência fica no banco (`settings.theme`) e vale para as três janelas ao
+mesmo tempo.
+
+Os papéis de cor vivem em `src/renderer/src/shared/tokens.css`: `:root` traz o
+modo claro e `:root[data-theme='escuro']` só redefine os tokens, então nenhum
+componente precisa saber em que tema está. Ícones são SVG de traço em
+`shared/Icon.tsx` (herdam `currentColor`), e as fontes vão empacotadas — o app
+não busca nada na rede para desenhar a interface.
 
 ## Sintaxe da captura rápida
 

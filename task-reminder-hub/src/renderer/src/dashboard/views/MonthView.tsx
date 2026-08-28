@@ -85,6 +85,7 @@ export function MonthView({
                   <div
                     key={task.id}
                     className={`month__event${task.status === 'concluida' ? ' month__event--done' : ''}`}
+                    style={{ ['--event-color' as string]: task.category?.color ?? 'var(--accent)' }}
                     draggable
                     onDragStart={(event) =>
                       event.dataTransfer.setData('text/task-id', String(task.id))
@@ -93,7 +94,7 @@ export function MonthView({
                     title={task.title}
                   >
                     <i className="dot" style={{ background: task.category?.color ?? 'var(--accent)' }} />
-                    <span className="tabular" style={{ fontSize: 10 }}>
+                    <span className="tabular" style={{ fontSize: 10, opacity: 0.75 }}>
                       {fmtTime(new Date(task.due_at!))}
                     </span>
                     {task.title}

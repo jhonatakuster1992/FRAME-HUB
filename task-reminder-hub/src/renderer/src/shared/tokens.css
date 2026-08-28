@@ -1,42 +1,59 @@
 /* ═══════════════════════════════════════════════════════════
-   Task & Reminder Hub — sistema de design
-   Variancia 6 · Movimento 5 · densidade variavel por superficie
+   Sistema de design — violeta profundo, superficies flutuantes,
+   cantos generosos. Claro e escuro compartilham os mesmos papeis
+   semanticos: so os valores mudam.
    ═══════════════════════════════════════════════════════════ */
 
 :root {
-  /* Paleta */
-  --papel:      #FAF7F2;
-  --tinta:      #241F1B;
-  --marmelada:  #E8A33D;
-  --ceramica:   #E1614A;
-  --musgo:      #2F7B6E;
-  --uva:        #8B7FD1;
-  --carvao:     #1B1918;
-  --osso:       #F5F1EA;
+  /* Marca */
+  --violeta:      #6C2BD9;
+  --violeta-2:    #5B21B6;
+  --violeta-3:    #8B5CF6;
+  --violeta-suave:#EFE7FE;
 
-  /* Papeis semanticos — modo claro */
-  --bg:            var(--papel);
-  --surface:       #FFFDFA;
-  --surface-2:     #F2EDE4;
-  --surface-sunk:  #EDE7DC;
-  --text:          var(--tinta);
-  --text-soft:     #6B6259;
-  --text-faint:    #9B9187;
-  --line:          #E3DBCE;
-  --line-strong:   #D2C7B6;
-  --accent:        var(--marmelada);
-  --accent-ink:    #7A4E08;
-  --danger:        var(--ceramica);
-  --done:          var(--musgo);
+  /* Cores de agenda / categoria */
+  --c-violeta: #7C3AED;
+  --c-ambar:   #F59E0B;
+  --c-esmeralda: #10B981;
+  --c-rosa:    #F43F5E;
+  --c-ceu:     #0EA5E9;
+  --c-pink:    #EC4899;
 
-  /* Elevacao — a "flutuacao" do post-it */
-  --shadow-1: 0 1px 2px rgba(36, 31, 27, 0.06), 0 2px 6px rgba(36, 31, 27, 0.05);
-  --shadow-2: 0 2px 6px rgba(36, 31, 27, 0.08), 0 8px 20px rgba(36, 31, 27, 0.09);
-  --shadow-3: 0 8px 18px rgba(36, 31, 27, 0.12), 0 24px 48px rgba(36, 31, 27, 0.16);
+  /* Papeis — modo claro */
+  --bg:           #F3F4FB;
+  --surface:      #FFFFFF;
+  --surface-2:    #F5F5FC;
+  --surface-sunk: #ECEDF7;
+  --text:         #1A1830;
+  --text-soft:    #6C6A88;
+  --text-faint:   #9A98B3;
+  --line:         #E8E8F3;
+  --line-strong:  #D6D5E7;
+  --accent:       var(--violeta);
+  --accent-ink:   #FFFFFF;
+  --accent-soft:  var(--violeta-suave);
+  --accent-text:  #6C2BD9;
+  --danger:       #E11D48;
+  --done:         #059669;
+  --warn:         #D97706;
+
+  /* Barra lateral */
+  --nav-bg: linear-gradient(168deg, #7C3AED 0%, #6C2BD9 45%, #4C1D95 100%);
+  --nav-text: rgba(255, 255, 255, 0.78);
+  --nav-text-strong: #FFFFFF;
+  --nav-active-bg: rgba(255, 255, 255, 0.16);
+  --nav-hover-bg: rgba(255, 255, 255, 0.09);
+
+  /* Elevacao */
+  --shadow-1: 0 1px 2px rgba(26, 24, 48, 0.05), 0 2px 8px rgba(26, 24, 48, 0.045);
+  --shadow-2: 0 4px 12px rgba(26, 24, 48, 0.07), 0 12px 28px rgba(26, 24, 48, 0.07);
+  --shadow-3: 0 12px 24px rgba(26, 24, 48, 0.1), 0 32px 64px rgba(26, 24, 48, 0.16);
+  --shadow-accent: 0 6px 18px rgba(108, 43, 217, 0.35);
 
   /* Forma */
-  --r-card: 16px;
-  --r-sm: 9px;
+  --r-card: 18px;
+  --r-panel: 22px;
+  --r-sm: 11px;
   --r-pill: 999px;
 
   /* Tipografia */
@@ -44,34 +61,44 @@
   --font-body: 'Inter Variable', Inter, system-ui, -apple-system, sans-serif;
   --font-data: 'Inter Variable', Inter, ui-monospace, monospace;
 
-  /* Movimento — transicoes curtas, zero loop ambiente */
+  /* Movimento — curto, sem loop ambiente (o app fica ligado o dia todo) */
   --ease: cubic-bezier(0.22, 0.61, 0.36, 1);
   --dur: 150ms;
 }
 
 :root[data-theme='escuro'] {
-  --bg:            var(--carvao);
-  --surface:       #232120;
-  --surface-2:     #2C2927;
-  --surface-sunk:  #191716;
-  --text:          var(--osso);
-  --text-soft:     #B6ADA1;
-  --text-faint:    #837A70;
-  --line:          #3A3634;
-  --line-strong:   #4B4643;
-  --accent:        #F0B255;
-  --accent-ink:    #FFE2B0;
+  --bg:           #101020;
+  --surface:      #1A1930;
+  --surface-2:    #22203B;
+  --surface-sunk: #16152A;
+  --text:         #ECEBF8;
+  --text-soft:    #A6A3C4;
+  --text-faint:   #79769B;
+  --line:         #2B2947;
+  --line-strong:  #3B3860;
+  --accent:       var(--violeta-3);
+  --accent-ink:   #17102C;
+  --accent-soft:  rgba(139, 92, 246, 0.18);
+  --accent-text:  #B69DFB;
+  --danger:       #FB7185;
+  --done:         #34D399;
+  --warn:         #FBBF24;
+
+  --nav-bg: linear-gradient(168deg, #2E1D63 0%, #241A4D 50%, #171233 100%);
+  --nav-text: rgba(233, 230, 250, 0.72);
+  --nav-text-strong: #FFFFFF;
+  --nav-active-bg: rgba(139, 92, 246, 0.28);
+  --nav-hover-bg: rgba(255, 255, 255, 0.07);
+
   --shadow-1: 0 1px 2px rgba(0, 0, 0, 0.4);
-  --shadow-2: 0 2px 8px rgba(0, 0, 0, 0.45);
-  --shadow-3: 0 10px 30px rgba(0, 0, 0, 0.55);
+  --shadow-2: 0 4px 14px rgba(0, 0, 0, 0.45);
+  --shadow-3: 0 16px 40px rgba(0, 0, 0, 0.6);
+  --shadow-accent: 0 6px 18px rgba(139, 92, 246, 0.3);
 }
 
 * { box-sizing: border-box; }
 
-html, body, #root {
-  height: 100%;
-  margin: 0;
-}
+html, body, #root { height: 100%; margin: 0; }
 
 body {
   background: var(--bg);
@@ -85,20 +112,13 @@ body {
 h1, h2, h3, h4, .display {
   font-family: var(--font-display);
   font-weight: 600;
-  letter-spacing: -0.015em;
+  letter-spacing: -0.02em;
   margin: 0;
 }
 
-button, input, select, textarea {
-  font: inherit;
-  color: inherit;
-}
-
-button {
-  cursor: pointer;
-  border: none;
-  background: none;
-}
+button, input, select, textarea { font: inherit; color: inherit; }
+input[type='checkbox'], input[type='radio'], progress { accent-color: var(--accent); }
+button { cursor: pointer; border: none; background: none; }
 
 ::-webkit-scrollbar { width: 10px; height: 10px; }
 ::-webkit-scrollbar-thumb {
@@ -109,32 +129,40 @@ button {
 }
 ::-webkit-scrollbar-track { background: transparent; }
 
-/* ── Elemento-assinatura: card-nota ─────────────────────── */
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* ── Superficie base: o cartao ──────────────────────────── */
 .note-card {
   position: relative;
   background: var(--surface);
   border-radius: var(--r-card);
-  box-shadow: var(--shadow-1);
   border: 1px solid var(--line);
+  box-shadow: var(--shadow-1);
   overflow: hidden;
-  transition: box-shadow var(--dur) var(--ease), transform var(--dur) var(--ease);
+  transition: box-shadow var(--dur) var(--ease), transform var(--dur) var(--ease),
+    border-color var(--dur) var(--ease);
   animation: note-in var(--dur) var(--ease);
 }
 
+/* Faixa lateral com a cor da agenda — assinatura repetida nas tres telas */
 .note-card::before {
   content: '';
   position: absolute;
-  inset: 0 0 auto 0;
-  height: 4px;
+  inset: 0 auto 0 0;
+  width: 4px;
   background: var(--note-color, var(--accent));
 }
 
 .note-card--interactive:hover {
   box-shadow: var(--shadow-2);
-  transform: translateY(-1px);
+  transform: translateY(-2px);
+  border-color: var(--line-strong);
 }
 
-.note-card--done { opacity: 0.6; }
+.note-card--done { opacity: 0.62; }
 .note-card--done .note-card__title {
   text-decoration: line-through;
   text-decoration-thickness: 1.5px;
@@ -142,7 +170,7 @@ button {
 }
 
 @keyframes note-in {
-  from { opacity: 0; transform: scale(0.985) translateY(2px); }
+  from { opacity: 0; transform: translateY(4px) scale(0.99); }
   to   { opacity: 1; transform: none; }
 }
 
@@ -151,37 +179,54 @@ button {
   * { transition-duration: 1ms !important; }
 }
 
-/* ── Controles comuns ───────────────────────────────────── */
+/* ── Controles ──────────────────────────────────────────── */
 .btn {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 7px 12px;
-  border-radius: var(--r-sm);
+  justify-content: center;
+  gap: 7px;
+  padding: 9px 15px;
+  border-radius: var(--r-pill);
   background: var(--surface);
   border: 1px solid var(--line);
   color: var(--text);
   font-size: 13px;
   font-weight: 500;
-  transition: background var(--dur) var(--ease), border-color var(--dur) var(--ease);
+  white-space: nowrap;
+  transition: background var(--dur) var(--ease), border-color var(--dur) var(--ease),
+    box-shadow var(--dur) var(--ease), color var(--dur) var(--ease);
 }
-.btn:hover { background: var(--surface-2); }
+.btn:hover { background: var(--surface-2); border-color: var(--line-strong); }
+
 .btn--primary {
   background: var(--accent);
   border-color: transparent;
-  color: #2A1B02;
+  color: var(--accent-ink);
   font-family: var(--font-display);
   font-weight: 600;
+  box-shadow: var(--shadow-accent);
 }
-.btn--primary:hover { filter: brightness(1.05); background: var(--accent); }
-.btn--ghost { background: transparent; border-color: transparent; }
-.btn--ghost:hover { background: var(--surface-2); }
+.btn--primary:hover { background: var(--accent); filter: brightness(1.07); }
+
+.btn--soft {
+  background: var(--accent-soft);
+  border-color: transparent;
+  color: var(--accent-text);
+  font-weight: 600;
+}
+.btn--soft:hover { background: var(--accent-soft); filter: brightness(0.97); }
+
+.btn--ghost { background: transparent; border-color: transparent; color: var(--text-soft); }
+.btn--ghost:hover { background: var(--surface-2); color: var(--text); }
+
 .btn--danger { color: var(--danger); }
-.btn:disabled { opacity: 0.45; cursor: not-allowed; }
+.btn--danger:hover { background: color-mix(in srgb, var(--danger) 12%, transparent); }
+
+.btn:disabled { opacity: 0.45; cursor: not-allowed; box-shadow: none; }
 
 .field {
   width: 100%;
-  padding: 8px 11px;
+  padding: 10px 13px;
   border-radius: var(--r-sm);
   border: 1px solid var(--line);
   background: var(--surface);
@@ -190,26 +235,28 @@ button {
 }
 .field:focus {
   border-color: var(--accent);
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 22%, transparent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 20%, transparent);
 }
+.field::placeholder { color: var(--text-faint); }
 
 .chip {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 2px 9px;
+  padding: 3px 10px;
   border-radius: var(--r-pill);
   font-size: 11.5px;
   font-weight: 500;
   background: var(--surface-2);
   color: var(--text-soft);
+  white-space: nowrap;
 }
+.chip--accent { background: var(--accent-soft); color: var(--accent-text); font-weight: 600; }
 
-.dot {
-  width: 9px;
-  height: 9px;
-  border-radius: 50%;
-  flex: none;
-}
+.dot { width: 8px; height: 8px; border-radius: 50%; flex: none; }
 
 .tabular { font-variant-numeric: tabular-nums; font-family: var(--font-data); }
+
+.icon { width: 18px; height: 18px; flex: none; }
+.icon--sm { width: 15px; height: 15px; }
+.icon--lg { width: 22px; height: 22px; }
