@@ -1,3 +1,4 @@
+import { useLayoutEffect, useRef } from 'react'
 import type { AppSettings } from '@shared/types'
 import { BrandMark, NavIcon, type NavIconName } from '../../shared/Icon'
 import { ThemeSwitch } from '../../shared/ThemeSwitch'
@@ -31,8 +32,37 @@ export function Sidebar({
   theme,
   onTheme
 }: Props): React.JSX.Element {
+  const navRef = useRef<HTMLElement>(null)
+  const activeRef = useRef<HTMLButtonElement>(null)
+
+  // As faixas violeta sao pintadas em volta da aba ativa, entao precisam da
+  // posicao real dela — medir e mais seguro que calcular por altura fixa
+  // (janela baixa, rotulo maior ou fonte diferente moveriam o item).
+  useLayoutEffect(() => {
+    const nav = navRef.current
+    const item = activeRef.current
+    if (!nav || !item) return
+
+    const apply = (): void => {
+      const navBox = nav.getBoundingClientRect()
+      const itemBox = item.getBoundingClientRect()
+      nav.style.setProperty('--active-top', `${itemBox.top - navBox.top}px`)
+      nav.style.setProperty('--active-h', `${itemBox.height}px`)
+    }
+
+    apply()
+    const observer = new ResizeObserver(apply)
+    observer.observe(nav)
+    observer.observe(item)
+    return () => observer.disconnect()
+  }, [section, collapsed])
+
   return (
-    <nav className="nav">
+    <nav className="nav" ref={navRef}>
+      <span className="nav__fill nav__fill--top" />
+      <span className="nav__fill nav__fill--mid" />
+      <span className="nav__fill nav__fill--bottom" />
+
       <div className="nav__brand">
         <BrandMark size={collapsed ? 40 : 44} />
         {!collapsed && (
@@ -47,6 +77,7 @@ export function Sidebar({
         {ITEMS.map((item) => (
           <button
             key={item.id}
+            ref={section === item.id ? activeRef : undefined}
             className={`nav__item${section === item.id ? ' nav__item--active' : ''}`}
             onClick={() => onSection(item.id)}
             aria-current={section === item.id ? 'page' : undefined}

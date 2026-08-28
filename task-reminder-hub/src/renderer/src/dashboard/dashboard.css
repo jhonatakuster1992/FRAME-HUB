@@ -13,21 +13,46 @@
 .shell--compacta { --nav-w: 92px; }
 
 /* ── Barra lateral ───────────────────────────────────────── */
+/* O violeta e pintado em tres blocos: acima da aba ativa, na linha dela e
+   abaixo. Os de cima e de baixo tem canto arredondado do lado do canal,
+   entao o violeta recua e a aba clara atravessa ate o conteudo — a
+   geometria da referencia. A posicao sai de --active-index. */
 .nav {
+  --item-h: 60px;
+  --item-gap: 14px;
+  --brand-h: 116px;
+  --nav-corner: 26px;
+  /* valores de partida; o Sidebar mede e sobrescreve no layout */
+  --active-top: var(--brand-h);
+  --active-h: var(--item-h);
+  position: relative;
   display: flex;
   flex-direction: column;
-  background: var(--nav-bg);
-  border-radius: 0 42px 42px 0;
   color: var(--nav-text);
   overflow: hidden;
-  position: relative;
 }
 
+.nav__fill { position: absolute; left: 0; right: 0; background: var(--nav-bg); }
+.nav__fill--top {
+  top: 0;
+  height: var(--active-top);
+  border-radius: 0 42px var(--nav-corner) 0;
+}
+.nav__fill--mid { top: var(--active-top); height: var(--active-h); }
+.nav__fill--bottom {
+  top: calc(var(--active-top) + var(--active-h));
+  bottom: 0;
+  border-radius: 0 var(--nav-corner) 42px 0;
+}
+
+.nav__brand, .nav__items, .nav__foot { position: relative; z-index: 1; flex: none; }
+
 .nav__brand {
+  height: var(--brand-h);
   display: flex;
   align-items: center;
   gap: 13px;
-  padding: 30px 24px 38px;
+  padding: 0 24px;
   --brand-mark-bg: #fff;
   --brand-mark-ink: var(--violeta);
 }
@@ -48,14 +73,14 @@
   white-space: nowrap;
 }
 
-.nav__items { display: flex; flex-direction: column; gap: 6px; }
+.nav__items { display: flex; flex-direction: column; gap: var(--item-gap); }
 
 .nav__item {
   display: flex;
   align-items: center;
   gap: 15px;
-  height: 54px;
-  padding: 0 22px 0 26px;
+  height: var(--item-h);
+  padding: 0 22px 0 60px;
   font-size: 14px;
   font-weight: 500;
   color: var(--nav-text);
@@ -66,17 +91,16 @@
 .nav__item:hover { color: var(--nav-strong); }
 .nav__item:not(.nav__item--active):hover { background: var(--nav-hover); }
 
-/* Aba ativa: cápsula branca inteira dentro da barra, sem recorte. */
+/* Aba ativa: canal claro que emenda com o fundo da pagina a direita. */
 .nav__item--active {
-  margin: 0 16px;
-  padding: 0 18px 0 20px;
-  background: #fff;
+  margin-left: 44px;
+  padding-left: 38px;
+  background: var(--bg);
   color: var(--violeta);
   font-weight: 600;
-  border-radius: var(--r-pill);
-  box-shadow: 0 6px 18px rgba(20, 6, 70, 0.22);
+  border-radius: 30px 0 0 30px;
 }
-:root[data-theme='escuro'] .nav__item--active { background: var(--surface); color: var(--accent-text); }
+:root[data-theme='escuro'] .nav__item--active { color: var(--accent-text); }
 
 .nav__badge {
   margin-left: auto;

@@ -44,9 +44,14 @@ Atalho global padrão: **Ctrl+Alt+Espaço** (configurável em Ajustes).
 ## Aparência
 
 Violeta sólido na barra lateral, superfícies brancas flutuando sobre um fundo
-lavanda, cantos largos e pílula em todo controle — inclusive a aba ativa da
-barra lateral, uma cápsula clara inteira dentro do violeta. Tipografia Poppins,
-empacotada com o app (nada é buscado na rede para desenhar a interface).
+lavanda, cantos largos e pílula em todo controle. A aba ativa da barra lateral
+é um canal claro que atravessa até o conteúdo: o violeta é pintado em três
+faixas (acima, na linha da aba e abaixo), e as de cima e de baixo têm canto
+arredondado do lado do canal, então o violeta recua em vez de abraçar a aba.
+O `Sidebar` mede a posição real do item ativo e passa para o CSS, então a
+geometria acompanha janela baixa, rótulo maior ou mudança de fonte.
+Tipografia Poppins, empacotada com o app (nada é buscado na rede para
+desenhar a interface).
 
 O tema é escolha explícita — **claro, escuro ou seguir o sistema** — pelo
 alternador no rodapé da barra lateral, em Ajustes ou no botão do post-it. A
