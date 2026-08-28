@@ -51,7 +51,6 @@
 .nav__items { display: flex; flex-direction: column; gap: 6px; }
 
 .nav__item {
-  position: relative;
   display: flex;
   align-items: center;
   gap: 15px;
@@ -67,34 +66,17 @@
 .nav__item:hover { color: var(--nav-strong); }
 .nav__item:not(.nav__item--active):hover { background: var(--nav-hover); }
 
-/* Aba ativa: pílula clara colada na borda direita, com os cantos de cima e
-   de baixo recortados em curva — a barra "abraça" a aba. */
+/* Aba ativa: cápsula branca inteira dentro da barra, sem recorte. */
 .nav__item--active {
-  margin-left: 14px;
-  padding-left: 22px;
-  background: var(--notch);
+  margin: 0 16px;
+  padding: 0 18px 0 20px;
+  background: #fff;
   color: var(--violeta);
   font-weight: 600;
-  border-radius: 27px 0 0 27px;
+  border-radius: var(--r-pill);
+  box-shadow: 0 6px 18px rgba(20, 6, 70, 0.22);
 }
-:root[data-theme='escuro'] .nav__item--active { color: var(--accent-text); }
-
-.nav__item--active::before,
-.nav__item--active::after {
-  content: '';
-  position: absolute;
-  right: 0;
-  width: 22px;
-  height: 22px;
-}
-.nav__item--active::before {
-  top: -22px;
-  background: radial-gradient(circle 22px at 100% 100%, var(--notch) 0 22px, var(--nav-bg) 22px);
-}
-.nav__item--active::after {
-  bottom: -22px;
-  background: radial-gradient(circle 22px at 100% 0, var(--notch) 0 22px, var(--nav-bg) 22px);
-}
+:root[data-theme='escuro'] .nav__item--active { background: var(--surface); color: var(--accent-text); }
 
 .nav__badge {
   margin-left: auto;

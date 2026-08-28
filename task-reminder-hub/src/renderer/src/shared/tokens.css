@@ -43,8 +43,6 @@
   --nav-text:    rgba(255, 255, 255, 0.82);
   --nav-strong:  #FFFFFF;
   --nav-hover:   rgba(255, 255, 255, 0.12);
-  /* cor do recorte da aba ativa — igual ao fundo da página, para emendar */
-  --notch:       var(--bg);
 
   /* Elevação — sombras largas e suaves, sem borda */
   --shadow-1: 0 2px 10px rgba(74, 33, 199, 0.05);
@@ -93,7 +91,6 @@
   --nav-text:    rgba(236, 233, 252, 0.76);
   --nav-strong:  #FFFFFF;
   --nav-hover:   rgba(255, 255, 255, 0.09);
-  --notch:       var(--bg);
 
   --shadow-1: 0 2px 10px rgba(0, 0, 0, 0.35);
   --shadow-2: 0 8px 26px rgba(0, 0, 0, 0.45);

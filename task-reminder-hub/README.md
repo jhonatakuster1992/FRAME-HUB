@@ -44,10 +44,9 @@ Atalho global padrão: **Ctrl+Alt+Espaço** (configurável em Ajustes).
 ## Aparência
 
 Violeta sólido na barra lateral, superfícies brancas flutuando sobre um fundo
-lavanda, cantos largos e pílula em todo controle — a aba ativa da barra lateral
-é clara e tem os cantos recortados em curva, então a barra parece abraçá-la.
-Tipografia Poppins, empacotada com o app (nada é buscado na rede para desenhar
-a interface).
+lavanda, cantos largos e pílula em todo controle — inclusive a aba ativa da
+barra lateral, uma cápsula clara inteira dentro do violeta. Tipografia Poppins,
+empacotada com o app (nada é buscado na rede para desenhar a interface).
 
 O tema é escolha explícita — **claro, escuro ou seguir o sistema** — pelo
 alternador no rodapé da barra lateral, em Ajustes ou no botão do post-it. A
@@ -55,8 +54,7 @@ preferência fica no banco (`settings.theme`) e vale para as três janelas.
 
 Os papéis de cor vivem em `src/renderer/src/shared/tokens.css`: `:root` traz o
 modo claro e `:root[data-theme='escuro']` só redefine os tokens, então nenhum
-componente precisa saber em que tema está — inclusive o recorte da aba ativa,
-que usa `--notch` (a cor do fundo da página) para emendar sem costura.
+componente precisa saber em que tema está.
 
 ## Sintaxe da captura rápida
 
