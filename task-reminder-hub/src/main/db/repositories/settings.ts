@@ -6,6 +6,7 @@ export const DEFAULT_SETTINGS: AppSettings = {
   startMinimized: true,
   globalHotkey: 'CommandOrControl+Alt+Space',
   postitVisible: true,
+  postitAlwaysOnTop: false,
   theme: 'sistema',
   snoozeMinutes: 10,
   news: {

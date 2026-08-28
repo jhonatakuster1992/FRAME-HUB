@@ -11,7 +11,7 @@ export function SettingsSection({ settings, onChange }: Props): React.JSX.Elemen
   const [hotkey, setHotkey] = useState(settings.globalHotkey)
 
   const toggle = (
-    key: 'launchAtLogin' | 'startMinimized' | 'postitVisible',
+    key: 'launchAtLogin' | 'startMinimized' | 'postitVisible' | 'postitAlwaysOnTop',
     label: string,
     hint?: string
   ): React.JSX.Element => (
@@ -51,6 +51,11 @@ export function SettingsSection({ settings, onChange }: Props): React.JSX.Elemen
         {toggle('launchAtLogin', 'Iniciar com o Windows')}
         {toggle('startMinimized', 'Abrir minimizado na bandeja', 'Só o post-it aparece no boot.')}
         {toggle('postitVisible', 'Post-it flutuante sempre visível')}
+        {toggle(
+          'postitAlwaysOnTop',
+          'Manter o post-it acima das outras janelas',
+          'Desligado, ele se comporta como janela comum: clicar em outro app o manda para trás. Para trazê-lo de volta, use a bandeja.'
+        )}
 
         <div>
           <span className="label">Atalho global de captura</span>

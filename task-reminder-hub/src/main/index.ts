@@ -134,6 +134,7 @@ function applySettings(settings: AppSettings): void {
   })
 
   windows.setPostitVisible(settings.postitVisible)
+  windows.setPostitAlwaysOnTop(settings.postitAlwaysOnTop)
   refreshTray()
 }
 

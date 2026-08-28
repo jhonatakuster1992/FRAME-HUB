@@ -62,7 +62,7 @@ npm run dist       # gera dist/Task Reminder Hub-0.1.0-setup.exe
 
 | Janela | Arquivo | Papel |
 |---|---|---|
-| Post-it | `src/renderer/src/postit` | Sem moldura, always-on-top, pendências + captura embutida |
+| Post-it | `src/renderer/src/postit` | Sem moldura, pendências + captura embutida |
 | Captura rápida | `src/renderer/src/capture` | Abre no atalho global, digita, Enter, some |
 | Dashboard | `src/renderer/src/dashboard` | Tarefas, Agenda, Briefing, Produtividade e Ajustes |
 
@@ -87,6 +87,16 @@ preferência fica no banco (`settings.theme`) e vale para as três janelas.
 Os papéis de cor vivem em `src/renderer/src/shared/tokens.css`: `:root` traz o
 modo claro e `:root[data-theme='escuro']` só redefine os tokens, então nenhum
 componente precisa saber em que tema está.
+
+## Post-it flutuante
+
+Janela sem moldura, fora da barra de tarefas, com as pendências mais próximas
+e um campo de captura embutido. **Não** fica acima das outras janelas: clicar
+em outro app manda o post-it para trás, como qualquer janela. Para trazê-lo de
+volta use a bandeja (**Trazer post-it para frente**).
+
+Quem preferir o comportamento antigo liga *Manter o post-it acima das outras
+janelas* em Ajustes.
 
 ## Sintaxe da captura rápida
 

@@ -59,6 +59,7 @@ export function refreshTray(): void {
       { type: 'separator' },
       { label: 'Nova tarefa (captura rapida)', click: () => windows.toggleCapture() },
       { label: 'Abrir dashboard', click: () => windows.showDashboard() },
+      { label: 'Trazer post-it para frente', click: () => windows.showPostit() },
       {
         label: 'Post-it flutuante',
         type: 'checkbox',

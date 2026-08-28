@@ -90,13 +90,14 @@ export function createPostit(): BrowserWindow {
     transparent: true,
     resizable: true,
     skipTaskbar: true,
-    alwaysOnTop: true,
+    // Janela comum: clicar em outro app manda o post-it para tras.
+    // So fica na frente de tudo se o usuario ligar isso nos Ajustes.
+    alwaysOnTop: false,
     show: false,
     hasShadow: false,
     webPreferences: { preload: PRELOAD, sandbox: false }
   })
 
-  postit.setAlwaysOnTop(true, 'floating')
   openLinksExternally(postit)
   const persist = (): void => {
     if (postit && !postit.isDestroyed()) saveBounds('postit', postit.getBounds())
@@ -127,6 +128,17 @@ export function setPostitVisible(visible: boolean): void {
 
 export function isPostitVisible(): boolean {
   return getPostit()?.isVisible() ?? false
+}
+
+export function setPostitAlwaysOnTop(onTop: boolean): void {
+  getPostit()?.setAlwaysOnTop(onTop, 'floating')
+}
+
+/** Sem barra de tarefas, e por aqui que o post-it soterrado volta a aparecer. */
+export function showPostit(): void {
+  const window = getPostit() ?? createPostit()
+  window.show()
+  window.focus()
 }
 
 export function resizePostit(size: { width: number; height: number }): void {

@@ -105,6 +105,8 @@ export interface AppSettings {
   startMinimized: boolean
   globalHotkey: string
   postitVisible: boolean
+  /** Manter o post-it acima das outras janelas. */
+  postitAlwaysOnTop: boolean
   theme: 'claro' | 'escuro' | 'sistema'
   snoozeMinutes: number
   news: {
