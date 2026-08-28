@@ -1,7 +1,7 @@
 {
   "name": "task-reminder-hub",
   "version": "0.1.0",
-  "description": "Hub de tarefas, lembretes e agenda com post-it flutuante e briefing de notícias em voz",
+  "description": "Hub de tarefas, lembretes e agenda com post-it flutuante e briefing de not\u00edcias em voz",
   "main": "./out/main/index.js",
   "author": "Jhonata Kuster",
   "license": "MIT",
@@ -13,7 +13,7 @@
     "typecheck:node": "tsc --noEmit -p tsconfig.node.json",
     "typecheck:web": "tsc --noEmit -p tsconfig.web.json",
     "typecheck": "npm run typecheck:node && npm run typecheck:web",
-    "test": "node --import ./tests/register-alias.mjs --test tests/*.test.ts",
+    "test": "node --import ./tests/register-alias.mjs --test \"tests/**/*.test.ts\"",
     "postinstall": "electron-builder install-app-deps",
     "dist": "npm run build && electron-builder --win --publish never",
     "dist:dir": "npm run build && electron-builder --win --dir --publish never"

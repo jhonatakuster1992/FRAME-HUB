@@ -1,0 +1,49 @@
+name: Instalador Windows
+
+# Gera o instalador .exe do Tasker. O better-sqlite3 é módulo nativo: precisa
+# ser compilado no próprio Windows, por isso o job roda em windows-latest.
+on:
+  workflow_dispatch:
+  push:
+    branches: [claude/read-execute-file-6aygis]
+    paths:
+      - 'task-reminder-hub/**'
+      - '.github/workflows/build-windows.yml'
+
+jobs:
+  instalador:
+    runs-on: windows-latest
+    defaults:
+      run:
+        working-directory: task-reminder-hub
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: task-reminder-hub/package-lock.json
+
+      # O postinstall (electron-builder install-app-deps) recompila o
+      # better-sqlite3 para o ABI do Electron nesta etapa.
+      - name: Instalar dependências
+        run: npm ci
+
+      - name: Testes
+        run: npm test
+
+      - name: Build (typecheck + bundles)
+        run: npm run build
+
+      - name: Empacotar instalador NSIS
+        run: npx electron-builder --win --publish never
+
+      - name: Publicar instalador
+        uses: actions/upload-artifact@v4
+        with:
+          name: tasker-windows-instalador
+          path: task-reminder-hub/dist/*.exe
+          retention-days: 60
+          if-no-files-found: error

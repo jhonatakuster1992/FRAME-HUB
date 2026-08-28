@@ -1,5 +1,5 @@
 appId: com.jhonatakuster.taskreminderhub
-productName: Task Reminder Hub
+productName: Tasker
 copyright: © 2026 Jhonata Kuster
 
 directories:
@@ -21,10 +21,10 @@ win:
     - target: nsis
       arch: [x64]
   icon: resources/icon.png
-  artifactName: ${productName}-${version}-setup.${ext}
+  artifactName: Tasker-Setup-${version}.${ext}
   # Precisa bater com o app.setAppUserModelId do main: e o que liga os
   # botoes do toast (protocolo framehub://) ao atalho instalado.
-  executableName: TaskReminderHub
+  executableName: Tasker
 
 nsis:
   oneClick: true
@@ -32,12 +32,12 @@ nsis:
   allowToChangeInstallationDirectory: false
   createDesktopShortcut: true
   createStartMenuShortcut: true
-  shortcutName: Task Reminder Hub
+  shortcutName: Tasker
   runAfterFinish: true
   deleteAppDataOnUninstall: false
 
 protocols:
-  - name: Task Reminder Hub
+  - name: Tasker
     schemes: [framehub]
 
 publish: null
