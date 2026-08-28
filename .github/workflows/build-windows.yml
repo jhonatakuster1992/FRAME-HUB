@@ -9,6 +9,8 @@ on:
     paths:
       - 'task-reminder-hub/**'
       - '.github/workflows/build-windows.yml'
+      # mexer só na documentação não precisa gerar instalador
+      - '!task-reminder-hub/**.md'
 
 jobs:
   instalador:

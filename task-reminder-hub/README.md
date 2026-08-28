@@ -16,6 +16,33 @@ Roda 100% local: nenhum backend, nenhum dado sai da máquina.
 | Notícias | rss-parser + TTS nativo (`say` → SAPI no Windows) |
 | Instalador | electron-builder (NSIS, um clique) |
 
+## Instalando no Windows
+
+O instalador (`Tasker-Setup-0.1.0.exe`, NSIS de um clique) é gerado pelo
+workflow **Instalador Windows** a cada push nesta branch. Para baixar:
+
+1. Abra a aba **Actions** do repositório e escolha a execução mais recente de
+   *Instalador Windows*.
+2. Baixe o artefato **tasker-windows-instalador** (é um `.zip` com o `.exe`).
+3. Descompacte e execute. O instalador cria os atalhos, registra o protocolo
+   `framehub://` (é o que faz os botões do toast funcionarem) e abre o app.
+
+O `better-sqlite3` é um módulo nativo: precisa ser compilado no próprio
+Windows, então o `.exe` não pode ser gerado a partir de Linux ou macOS — daí
+o build rodar em `windows-latest`.
+
+Para gerar localmente, numa máquina Windows com Node 22:
+
+```bash
+cd task-reminder-hub
+npm ci        # o postinstall recompila o better-sqlite3 para o ABI do Electron
+npm run dist  # sai em dist/Tasker-Setup-0.1.0.exe
+```
+
+O app não é assinado digitalmente, então o SmartScreen deve avisar na
+primeira execução ("Mais informações" → "Executar assim mesmo"). Assinar
+exige um certificado de code signing.
+
 ## Rodando
 
 ```bash
