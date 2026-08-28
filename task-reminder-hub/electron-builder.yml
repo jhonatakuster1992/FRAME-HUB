@@ -1,0 +1,43 @@
+appId: com.jhonatakuster.taskreminderhub
+productName: Task Reminder Hub
+copyright: © 2026 Jhonata Kuster
+
+directories:
+  buildResources: resources
+  output: dist
+
+files:
+  - out/**/*
+  - resources/**/*
+  - package.json
+
+# O binario nativo do better-sqlite3 nao pode ficar dentro do asar.
+asarUnpack:
+  - '**/*.node'
+  - node_modules/better-sqlite3/**
+
+win:
+  target:
+    - target: nsis
+      arch: [x64]
+  icon: resources/icon.png
+  artifactName: ${productName}-${version}-setup.${ext}
+  # Precisa bater com o app.setAppUserModelId do main: e o que liga os
+  # botoes do toast (protocolo framehub://) ao atalho instalado.
+  executableName: TaskReminderHub
+
+nsis:
+  oneClick: true
+  perMachine: false
+  allowToChangeInstallationDirectory: false
+  createDesktopShortcut: true
+  createStartMenuShortcut: true
+  shortcutName: Task Reminder Hub
+  runAfterFinish: true
+  deleteAppDataOnUninstall: false
+
+protocols:
+  - name: Task Reminder Hub
+    schemes: [framehub]
+
+publish: null

@@ -1,0 +1,67 @@
+/* Popup da hotkey — aparece e some com fade rapido, fundo semitransparente. */
+body {
+  background: transparent;
+  overflow: hidden;
+}
+
+.capture {
+  margin: 16px;
+  border-radius: 20px;
+  background: color-mix(in srgb, var(--surface) 88%, transparent);
+  backdrop-filter: blur(18px) saturate(140%);
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow-3);
+  overflow: hidden;
+  animation: capture-in 140ms var(--ease);
+}
+
+@keyframes capture-in {
+  from { opacity: 0; transform: translateY(-6px) scale(0.99); }
+  to   { opacity: 1; transform: none; }
+}
+
+.capture__bar { height: 4px; background: var(--marmelada); }
+
+.capture__input {
+  width: 100%;
+  padding: 18px 20px 14px;
+  border: none;
+  background: transparent;
+  outline: none;
+  font-family: var(--font-display);
+  font-size: 21px;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+}
+.capture__input::placeholder { color: var(--text-faint); }
+
+.capture__foot {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 20px 14px;
+  font-size: 11.5px;
+  color: var(--text-faint);
+}
+
+.capture__preview {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  flex-wrap: wrap;
+  flex: 1;
+  min-width: 0;
+}
+
+.capture__kbd {
+  font-family: var(--font-data);
+  font-size: 10.5px;
+  padding: 2px 6px;
+  border-radius: 5px;
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  color: var(--text-soft);
+}
+
+.capture__warn { color: var(--ceramica); }
+.capture__ok { color: var(--musgo); font-weight: 600; }

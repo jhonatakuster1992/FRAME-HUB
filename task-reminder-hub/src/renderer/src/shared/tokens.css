@@ -1,0 +1,215 @@
+/* ═══════════════════════════════════════════════════════════
+   Task & Reminder Hub — sistema de design
+   Variancia 6 · Movimento 5 · densidade variavel por superficie
+   ═══════════════════════════════════════════════════════════ */
+
+:root {
+  /* Paleta */
+  --papel:      #FAF7F2;
+  --tinta:      #241F1B;
+  --marmelada:  #E8A33D;
+  --ceramica:   #E1614A;
+  --musgo:      #2F7B6E;
+  --uva:        #8B7FD1;
+  --carvao:     #1B1918;
+  --osso:       #F5F1EA;
+
+  /* Papeis semanticos — modo claro */
+  --bg:            var(--papel);
+  --surface:       #FFFDFA;
+  --surface-2:     #F2EDE4;
+  --surface-sunk:  #EDE7DC;
+  --text:          var(--tinta);
+  --text-soft:     #6B6259;
+  --text-faint:    #9B9187;
+  --line:          #E3DBCE;
+  --line-strong:   #D2C7B6;
+  --accent:        var(--marmelada);
+  --accent-ink:    #7A4E08;
+  --danger:        var(--ceramica);
+  --done:          var(--musgo);
+
+  /* Elevacao — a "flutuacao" do post-it */
+  --shadow-1: 0 1px 2px rgba(36, 31, 27, 0.06), 0 2px 6px rgba(36, 31, 27, 0.05);
+  --shadow-2: 0 2px 6px rgba(36, 31, 27, 0.08), 0 8px 20px rgba(36, 31, 27, 0.09);
+  --shadow-3: 0 8px 18px rgba(36, 31, 27, 0.12), 0 24px 48px rgba(36, 31, 27, 0.16);
+
+  /* Forma */
+  --r-card: 16px;
+  --r-sm: 9px;
+  --r-pill: 999px;
+
+  /* Tipografia */
+  --font-display: 'Space Grotesk Variable', 'Space Grotesk', system-ui, sans-serif;
+  --font-body: 'Inter Variable', Inter, system-ui, -apple-system, sans-serif;
+  --font-data: 'Inter Variable', Inter, ui-monospace, monospace;
+
+  /* Movimento — transicoes curtas, zero loop ambiente */
+  --ease: cubic-bezier(0.22, 0.61, 0.36, 1);
+  --dur: 150ms;
+}
+
+:root[data-theme='escuro'] {
+  --bg:            var(--carvao);
+  --surface:       #232120;
+  --surface-2:     #2C2927;
+  --surface-sunk:  #191716;
+  --text:          var(--osso);
+  --text-soft:     #B6ADA1;
+  --text-faint:    #837A70;
+  --line:          #3A3634;
+  --line-strong:   #4B4643;
+  --accent:        #F0B255;
+  --accent-ink:    #FFE2B0;
+  --shadow-1: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow-2: 0 2px 8px rgba(0, 0, 0, 0.45);
+  --shadow-3: 0 10px 30px rgba(0, 0, 0, 0.55);
+}
+
+* { box-sizing: border-box; }
+
+html, body, #root {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: 14px;
+  line-height: 1.45;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4, .display {
+  font-family: var(--font-display);
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  margin: 0;
+}
+
+button, input, select, textarea {
+  font: inherit;
+  color: inherit;
+}
+
+button {
+  cursor: pointer;
+  border: none;
+  background: none;
+}
+
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-thumb {
+  background: var(--line-strong);
+  border: 3px solid transparent;
+  background-clip: content-box;
+  border-radius: var(--r-pill);
+}
+::-webkit-scrollbar-track { background: transparent; }
+
+/* ── Elemento-assinatura: card-nota ─────────────────────── */
+.note-card {
+  position: relative;
+  background: var(--surface);
+  border-radius: var(--r-card);
+  box-shadow: var(--shadow-1);
+  border: 1px solid var(--line);
+  overflow: hidden;
+  transition: box-shadow var(--dur) var(--ease), transform var(--dur) var(--ease);
+  animation: note-in var(--dur) var(--ease);
+}
+
+.note-card::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 4px;
+  background: var(--note-color, var(--accent));
+}
+
+.note-card--interactive:hover {
+  box-shadow: var(--shadow-2);
+  transform: translateY(-1px);
+}
+
+.note-card--done { opacity: 0.6; }
+.note-card--done .note-card__title {
+  text-decoration: line-through;
+  text-decoration-thickness: 1.5px;
+  color: var(--text-soft);
+}
+
+@keyframes note-in {
+  from { opacity: 0; transform: scale(0.985) translateY(2px); }
+  to   { opacity: 1; transform: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .note-card { animation: none; }
+  * { transition-duration: 1ms !important; }
+}
+
+/* ── Controles comuns ───────────────────────────────────── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 12px;
+  border-radius: var(--r-sm);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  color: var(--text);
+  font-size: 13px;
+  font-weight: 500;
+  transition: background var(--dur) var(--ease), border-color var(--dur) var(--ease);
+}
+.btn:hover { background: var(--surface-2); }
+.btn--primary {
+  background: var(--accent);
+  border-color: transparent;
+  color: #2A1B02;
+  font-family: var(--font-display);
+  font-weight: 600;
+}
+.btn--primary:hover { filter: brightness(1.05); background: var(--accent); }
+.btn--ghost { background: transparent; border-color: transparent; }
+.btn--ghost:hover { background: var(--surface-2); }
+.btn--danger { color: var(--danger); }
+.btn:disabled { opacity: 0.45; cursor: not-allowed; }
+
+.field {
+  width: 100%;
+  padding: 8px 11px;
+  border-radius: var(--r-sm);
+  border: 1px solid var(--line);
+  background: var(--surface);
+  outline: none;
+  transition: border-color var(--dur) var(--ease), box-shadow var(--dur) var(--ease);
+}
+.field:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 22%, transparent);
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 2px 9px;
+  border-radius: var(--r-pill);
+  font-size: 11.5px;
+  font-weight: 500;
+  background: var(--surface-2);
+  color: var(--text-soft);
+}
+
+.dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  flex: none;
+}
+
+.tabular { font-variant-numeric: tabular-nums; font-family: var(--font-data); }
