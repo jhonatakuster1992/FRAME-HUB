@@ -1,10 +1,19 @@
 import { useEffect, useState } from 'react'
-import type { Category, HistoryEntry, Priority, RecurrenceType, TaskInput, TaskWithMeta } from '@shared/types'
+import type {
+  AttachmentInput,
+  Category,
+  HistoryEntry,
+  Priority,
+  RecurrenceType,
+  TaskInput,
+  TaskWithMeta
+} from '@shared/types'
 import { api } from '../../shared/api'
 import { Icon } from '../../shared/Icon'
 import { useEscape } from '../../shared/hooks'
 import { fmtRelative, toLocalInput, fromLocalInput } from '../../shared/date'
 import { RecurrenceEditor } from './RecurrenceEditor'
+import { Attachments } from './Attachments'
 
 interface Props {
   task: TaskWithMeta | null
@@ -45,6 +54,7 @@ export function TaskDialog({
     task?.reminder?.recurrence_value ?? null
   )
   const [hasReminder, setHasReminder] = useState(Boolean(task?.reminder))
+  const [pendentes, setPendentes] = useState<AttachmentInput[]>([])
   const [history, setHistory] = useState<HistoryEntry[]>([])
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -79,8 +89,9 @@ export function TaskDialog({
     }
 
     try {
-      if (task) await api.tasks.update(task.id, payload)
-      else await api.tasks.create(payload)
+      const salva = task ? await api.tasks.update(task.id, payload) : await api.tasks.create(payload)
+      // Anexos colados antes de existir a tarefa só agora têm onde entrar.
+      if (salva && pendentes.length > 0) await api.attachments.add(salva.id, pendentes)
       onSaved()
       onClose()
     } catch (err) {
@@ -201,6 +212,13 @@ export function TaskDialog({
               <small>Toast do Windows com Concluir, Adiar e Abrir.</small>
             </span>
           </label>
+
+          <Attachments
+            taskId={task?.id ?? null}
+            pending={pendentes}
+            onPending={setPendentes}
+            onChanged={onSaved}
+          />
 
           {hasReminder && (
             <RecurrenceEditor

@@ -1,12 +1,22 @@
-import { ipcMain, shell } from 'electron'
+import { BrowserWindow, dialog, ipcMain, shell } from 'electron'
 import { CH } from '@shared/ipc'
-import type { AppSettings, CategoryInput, TaskInput, TaskQuery } from '@shared/types'
+import type {
+  AppSettings,
+  AttachmentInput,
+  CategoryInput,
+  TaskInput,
+  TaskQuery
+} from '@shared/types'
 import { parseQuickCapture } from '@shared/quick-parse'
 import * as tasks from '../db/repositories/tasks'
 import * as categories from '../db/repositories/categories'
 import * as history from '../db/repositories/history'
 import * as news from '../db/repositories/news'
+import * as attachmentsRepo from '../db/repositories/attachments'
+import * as attachments from '../attachments'
+import * as alerts from '../alerts'
 import { getSettings, updateSettings } from '../db/repositories/settings'
+import type { AlertPayload } from '@shared/types'
 import type { Briefing } from '../news/briefing'
 import * as windows from '../windows'
 
@@ -14,6 +24,17 @@ export interface IpcDeps {
   briefing: Briefing
   onSettingsChanged: (settings: AppSettings) => void
   onTasksChanged: () => void
+  /** Monta um alerta de exemplo com as configurações atuais. */
+  buildTestAlert: () => AlertPayload
+}
+
+const OPCOES_ANEXO: Electron.OpenDialogOptions = {
+  title: 'Anexar à tarefa',
+  properties: ['openFile', 'multiSelections'],
+  filters: [
+    { name: 'Imagens e áudio', extensions: ['png', 'jpg', 'jpeg', 'gif', 'webp', 'mp3', 'ogg', 'opus', 'm4a', 'wav', 'webm'] },
+    { name: 'Todos os arquivos', extensions: ['*'] }
+  ]
 }
 
 /** Notifica todas as janelas + tray depois de mexer em tarefa. */
@@ -43,6 +64,8 @@ export function registerIpc(deps: IpcDeps): void {
   })
 
   ipcMain.handle(CH.tasksDelete, (_e, id: number) => {
+    // O CASCADE apaga as linhas dos anexos, mas não os arquivos em disco.
+    attachments.removeForTask(id)
     tasks.deleteTask(id)
     tasksChanged(deps)
   })
@@ -97,6 +120,69 @@ export function registerIpc(deps: IpcDeps): void {
     return { task, warnings: parsed.warnings }
   })
 
+  /* ------------------------------- anexos ------------------------------ */
+  ipcMain.handle(CH.attachmentsList, (_e, taskId: number) => attachmentsRepo.listForTask(taskId))
+
+  ipcMain.handle(CH.attachmentsAdd, (_e, taskId: number, files: AttachmentInput[]) => {
+    const salvos = files.map((file) =>
+      attachments.saveBytes(taskId, {
+        original_name: file.original_name,
+        mime: file.mime,
+        bytes: Buffer.from(file.data, 'base64')
+      })
+    )
+    tasksChanged(deps)
+    return salvos
+  })
+
+  ipcMain.handle(CH.attachmentsPick, async (event, taskId: number) => {
+    const janela = BrowserWindow.fromWebContents(event.sender)
+    const escolha = await (janela
+      ? dialog.showOpenDialog(janela, OPCOES_ANEXO)
+      : dialog.showOpenDialog(OPCOES_ANEXO))
+    if (escolha.canceled) return []
+
+    const salvos = escolha.filePaths.map((caminho) => attachments.saveFromPath(taskId, caminho))
+    tasksChanged(deps)
+    return salvos
+  })
+
+  ipcMain.handle(CH.attachmentsRemove, (_e, id: number) => {
+    attachments.removeAttachment(id)
+    tasksChanged(deps)
+  })
+
+  ipcMain.handle(CH.attachmentsOpen, async (_e, id: number) => {
+    const anexo = attachmentsRepo.get(id)
+    if (anexo) await shell.openPath(attachments.filePath(anexo.file_name))
+  })
+
+  ipcMain.handle(CH.attachmentsData, (_e, id: number) => attachments.dataUrl(id))
+
+  /* ------------------------------- alerta ------------------------------ */
+  ipcMain.handle(
+    CH.alertAction,
+    (_e, taskId: number, action: 'concluir' | 'adiar' | 'abrir' | 'fechar') => {
+      if (action === 'concluir') tasks.completeTask(taskId)
+      if (action === 'adiar') tasks.snoozeTask(taskId, getSettings().snoozeMinutes)
+      if (action === 'abrir') {
+        windows.showDashboard()
+        windows.broadcast({ type: 'focus-task', taskId })
+      }
+      // taskId <= 0 é o renderer avisando que a fila esvaziou. Sem isso a
+      // janela ficaria vazia e transparente por cima de tudo, comendo cliques.
+      if (taskId <= 0) {
+        windows.hideAlert()
+        return
+      }
+
+      if (action !== 'fechar') tasksChanged(deps)
+      windows.broadcast({ type: 'alert-dismiss', taskId })
+    }
+  )
+
+  ipcMain.handle(CH.alertResize, (_e, height: number) => windows.resizeAlert(height))
+
   /* ----------------------------- categorias ---------------------------- */
   ipcMain.handle(CH.categoriesList, () => categories.listCategories())
   ipcMain.handle(CH.categoriesCreate, (_e, input: CategoryInput) => {
@@ -119,9 +205,36 @@ export function registerIpc(deps: IpcDeps): void {
   ipcMain.handle(CH.settingsGet, () => getSettings())
   ipcMain.handle(CH.settingsUpdate, (_e, patch: Partial<AppSettings>) => {
     const settings = updateSettings(patch)
+    if (patch.alerts) alerts.invalidateSoundCache()
     deps.onSettingsChanged(settings)
     windows.broadcast({ type: 'data-changed', scope: 'settings' })
     return settings
+  })
+
+  ipcMain.handle(CH.settingsPickSound, async (event) => {
+    const janela = BrowserWindow.fromWebContents(event.sender)
+    const opcoes: Electron.OpenDialogOptions = {
+      title: 'Escolher som do alerta',
+      properties: ['openFile'],
+      filters: [{ name: 'Áudio', extensions: ['wav', 'mp3', 'ogg', 'opus', 'm4a', 'webm'] }]
+    }
+    const escolha = await (janela
+      ? dialog.showOpenDialog(janela, opcoes)
+      : dialog.showOpenDialog(opcoes))
+    if (escolha.canceled || escolha.filePaths.length === 0) return getSettings()
+
+    alerts.adoptCustomSound(escolha.filePaths[0])
+    const settings = getSettings()
+    deps.onSettingsChanged(settings)
+    windows.broadcast({ type: 'data-changed', scope: 'settings' })
+    return settings
+  })
+
+  ipcMain.handle(CH.settingsTestAlert, () => {
+    const payload = deps.buildTestAlert()
+    windows.broadcast({ type: 'alert', alert: payload })
+    if (payload.showPopup) windows.showAlert()
+    return payload
   })
 
   /* ------------------------------ noticias ----------------------------- */

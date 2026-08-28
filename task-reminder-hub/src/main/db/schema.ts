@@ -84,6 +84,22 @@ export const MIGRATIONS: Migration[] = [
         value TEXT NOT NULL
       );
     `
+  },
+  {
+    id: '002_attachments',
+    sql: `
+      CREATE TABLE attachments (
+        id            INTEGER PRIMARY KEY AUTOINCREMENT,
+        task_id       INTEGER NOT NULL REFERENCES tasks(id) ON DELETE CASCADE,
+        kind          TEXT    NOT NULL CHECK (kind IN ('imagem','audio','arquivo')),
+        file_name     TEXT    NOT NULL UNIQUE,
+        original_name TEXT    NOT NULL,
+        mime          TEXT    NOT NULL DEFAULT '',
+        size_bytes    INTEGER NOT NULL DEFAULT 0,
+        created_at    TEXT    NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%SZ','now'))
+      );
+      CREATE INDEX idx_attachments_task ON attachments(task_id);
+    `
   }
 ]
 

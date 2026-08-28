@@ -58,11 +58,12 @@ npm run dist       # gera dist/Task Reminder Hub-0.1.0-setup.exe
 > voz do briefing. Fora do Windows a notificação vira um toast simples e o
 > briefing fica só em texto.
 
-## Três superfícies
+## Quatro superfícies
 
 | Janela | Arquivo | Papel |
 |---|---|---|
 | Post-it | `src/renderer/src/postit` | Sem moldura, pendências + captura embutida |
+| Aviso de lembrete | `src/renderer/src/alerta` | Acima de tudo, sem roubar foco; também toca o som |
 | Captura rápida | `src/renderer/src/capture` | Abre no atalho global, digita, Enter, some |
 | Dashboard | `src/renderer/src/dashboard` | Tarefas, Agenda, Briefing, Produtividade e Ajustes |
 
@@ -97,6 +98,45 @@ volta use a bandeja (**Trazer post-it para frente**).
 
 Quem preferir o comportamento antigo liga *Manter o post-it acima das outras
 janelas* em Ajustes.
+
+## Anexos
+
+Cada tarefa guarda prints e áudios — o trecho de conversa que você não quer
+procurar de novo depois. No formulário da tarefa dá para:
+
+- **colar** um print direto com `Ctrl+V` (o recorte do Windows já basta);
+- **arrastar** um arquivo para a área tracejada;
+- **escolher no disco** pelo seletor do sistema.
+
+Imagem aparece em miniatura (clique abre no visualizador do Windows), áudio
+ganha um player embutido, e o card da tarefa mostra um clipe com a contagem.
+
+Os arquivos ficam em `%APPDATA%/task-reminder-hub/anexos`, com nome gerado —
+o nome que veio de fora nunca vira caminho. Excluir a tarefa ou o anexo apaga
+o arquivo junto; se algo escapar (queda no meio da gravação, banco restaurado
+de backup), uma varredura no boot recolhe os órfãos.
+
+Teto de 25 MB por arquivo.
+
+## Alerta dos lembretes
+
+Quando um lembrete dispara, o app toca um som e mostra um aviso na tela
+**acima de qualquer janela**, inclusive de aplicativos em tela cheia. O aviso
+traz Concluir, Adiar e Abrir, e some sozinho no tempo configurado (0 mantém
+até você clicar; passar o mouse por cima cancela o sumiço).
+
+Vários lembretes vencendo juntos empilham no mesmo canto.
+
+Em Ajustes dá para escolher o som (três vêm com o app, ou aponte um arquivo
+seu), o volume, o tempo até sumir, e desligar som ou aviso separadamente. Com
+o aviso desligado, o lembrete volta a ser a notificação padrão do Windows.
+
+Lembrete recorrente toca a cada repetição — quem manda no ritmo é a
+recorrência configurada na tarefa.
+
+Os sons que acompanham o app estão em `resources/sounds` e foram
+sintetizados; um som próprio é copiado para `%APPDATA%/task-reminder-hub/sons`
+para não sumir se você mover o original.
 
 ## Sintaxe da captura rápida
 
@@ -146,6 +186,8 @@ que já rodou; nunca edite uma migração publicada — acrescente outra).
 categories     id, name, color, visible, created_at
 tasks          id, title, description, category_id, priority, status,
                due_at, duration_minutes, created_at, updated_at, completed_at
+attachments    id, task_id, kind, file_name, original_name, mime,
+               size_bytes, created_at
 reminders      id, task_id (único), recurrence_type, recurrence_value,
                next_trigger_at, last_triggered_at, enabled
 history        id, task_id, action, timestamp, meta

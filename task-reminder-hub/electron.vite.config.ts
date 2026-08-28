@@ -53,10 +53,11 @@ export default defineConfig({
     build: {
       rollupOptions: {
         input: {
-          // tres superficies = tres documentos HTML no mesmo bundle
+          // cada superficie e um documento HTML no mesmo bundle
           dashboard: resolve(__dirname, 'src/renderer/dashboard.html'),
           postit: resolve(__dirname, 'src/renderer/postit.html'),
-          capture: resolve(__dirname, 'src/renderer/capture.html')
+          capture: resolve(__dirname, 'src/renderer/capture.html'),
+          alerta: resolve(__dirname, 'src/renderer/alerta.html')
         }
       }
     }

@@ -5,6 +5,7 @@ import * as tasks from '../src/main/db/repositories/tasks.ts'
 import * as categories from '../src/main/db/repositories/categories.ts'
 import * as history from '../src/main/db/repositories/history.ts'
 import { getSettings, updateSettings } from '../src/main/db/repositories/settings.ts'
+import { MIGRATIONS } from '../src/main/db/schema.ts'
 
 /** Banco limpo em memoria para cada bloco de asserts. */
 function fresh(): void {
@@ -24,7 +25,8 @@ test('migracao e idempotente', () => {
   fresh()
   const db = createDatabase(':memory:')
   const applied = db.prepare('SELECT COUNT(*) AS n FROM schema_migrations').get() as { n: number }
-  assert.equal(applied.n, 1)
+  // conta contra a lista real: nao quebra a cada migracao nova
+  assert.equal(applied.n, MIGRATIONS.length)
   db.close()
 })
 

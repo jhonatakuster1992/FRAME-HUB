@@ -2,6 +2,8 @@ import { app, globalShortcut, powerMonitor } from 'electron'
 import { join } from 'node:path'
 import type { AppSettings } from '@shared/types'
 import { createDatabase, setDatabase, closeDatabase } from './db'
+import * as alerts from './alerts'
+import { configureStorage, pruneOrphans } from './attachments'
 import { getSettings, updateSettings } from './db/repositories/settings'
 import * as tasks from './db/repositories/tasks'
 import { registerIpc } from './ipc'
@@ -51,26 +53,43 @@ function bootstrap(): void {
     registerIpc({
       briefing,
       onSettingsChanged: applySettings,
-      onTasksChanged: refreshTray
+      onTasksChanged: refreshTray,
+      buildTestAlert: alerts.buildTestPayload
     })
+
+    // Arquivo sem linha no banco vira lixo permanente; varre uma vez no boot.
+    configureStorage(join(app.getPath('userData'), 'anexos'))
+    pruneOrphans()
 
     createTray()
     windows.createDashboard(!shouldStartHidden(settings))
     if (settings.postitVisible) windows.createPostit()
     windows.createCapture()
+    // Nasce escondida: é ela quem toca o som, mesmo com a popup desligada.
+    windows.createAlert()
 
     applySettings(settings)
 
     const schedulerDeps: SchedulerDeps = {
       onFire: (task) => {
-        notifyReminder(task, {
-          snoozeMinutes: getSettings().snoozeMinutes,
-          iconPath: defaultIconPath(),
-          onClick: (taskId) => {
-            windows.showDashboard()
-            windows.broadcast({ type: 'focus-task', taskId })
-          }
-        })
+        const payload = alerts.buildPayload(task)
+
+        // A popup própria e o toast do Windows dizem a mesma coisa; mostrar
+        // os dois seria aviso em dobro. A popup ganha quando está ligada.
+        windows.broadcast({ type: 'alert', alert: payload })
+        if (payload.showPopup) {
+          windows.showAlert()
+        } else {
+          notifyReminder(task, {
+            snoozeMinutes: getSettings().snoozeMinutes,
+            iconPath: defaultIconPath(),
+            onClick: (taskId) => {
+              windows.showDashboard()
+              windows.broadcast({ type: 'focus-task', taskId })
+            }
+          })
+        }
+
         windows.broadcast({ type: 'reminder-fired', taskId: task.id, title: task.title })
         refreshTray()
       }

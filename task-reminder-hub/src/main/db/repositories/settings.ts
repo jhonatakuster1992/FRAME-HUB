@@ -14,12 +14,25 @@ export const DEFAULT_SETTINGS: AppSettings = {
     speakOnStartup: true,
     rate: 1,
     maxArticlesPerSource: 5
+  },
+  alerts: {
+    soundEnabled: true,
+    sound: 'sino.wav',
+    customSound: null,
+    volume: 0.5,
+    popupEnabled: true,
+    popupSeconds: 12
   }
 }
 
-/** Merge raso + merge do bloco `news`, para nao perder chaves novas em updates. */
+/** Merge raso + merge dos blocos aninhados, para nao perder chaves novas. */
 function merge(base: AppSettings, patch: Partial<AppSettings>): AppSettings {
-  return { ...base, ...patch, news: { ...base.news, ...(patch.news ?? {}) } }
+  return {
+    ...base,
+    ...patch,
+    news: { ...base.news, ...(patch.news ?? {}) },
+    alerts: { ...base.alerts, ...(patch.alerts ?? {}) }
+  }
 }
 
 export function getSettings(): AppSettings {

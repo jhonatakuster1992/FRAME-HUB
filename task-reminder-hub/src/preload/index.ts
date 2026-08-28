@@ -20,6 +20,18 @@ const api: Api = {
     history: (taskId) => invoke(CH.tasksHistory, taskId),
     stats: () => invoke(CH.tasksStats)
   },
+  attachments: {
+    list: (taskId) => invoke(CH.attachmentsList, taskId),
+    add: (taskId, files) => invoke(CH.attachmentsAdd, taskId, files),
+    pick: (taskId) => invoke(CH.attachmentsPick, taskId),
+    remove: (id) => invoke(CH.attachmentsRemove, id),
+    open: (id) => invoke(CH.attachmentsOpen, id),
+    data: (id) => invoke(CH.attachmentsData, id)
+  },
+  alert: {
+    action: (taskId, action) => invoke(CH.alertAction, taskId, action),
+    resize: (height) => invoke(CH.alertResize, height)
+  },
   categories: {
     list: () => invoke(CH.categoriesList),
     create: (input) => invoke(CH.categoriesCreate, input),
@@ -28,7 +40,9 @@ const api: Api = {
   },
   settings: {
     get: () => invoke(CH.settingsGet),
-    update: (patch) => invoke(CH.settingsUpdate, patch)
+    update: (patch) => invoke(CH.settingsUpdate, patch),
+    pickSound: () => invoke(CH.settingsPickSound),
+    testAlert: () => invoke(CH.settingsTestAlert)
   },
   news: {
     sources: () => invoke(CH.newsSources),

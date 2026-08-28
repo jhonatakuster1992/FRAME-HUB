@@ -33,6 +33,7 @@ export interface Task {
 export interface TaskWithMeta extends Task {
   category: Category | null
   reminder: Reminder | null
+  attachments: number
 }
 
 export type RecurrenceType =
@@ -62,6 +63,28 @@ export interface Reminder {
   next_trigger_at: string | null
   last_triggered_at: string | null
   enabled: boolean
+}
+
+export type AttachmentKind = 'imagem' | 'audio' | 'arquivo'
+
+export interface Attachment {
+  id: number
+  task_id: number
+  kind: AttachmentKind
+  /** Nome do arquivo no disco (gerado); nunca o que o usuario digitou. */
+  file_name: string
+  original_name: string
+  mime: string
+  size_bytes: number
+  created_at: string
+}
+
+/** Bytes vindos do renderer (colar print, arrastar arquivo). */
+export interface AttachmentInput {
+  original_name: string
+  mime: string
+  /** Conteudo em base64 — o IPC nao carrega Buffer direto. */
+  data: string
 }
 
 export type HistoryAction = 'created' | 'completed' | 'snoozed' | 'rescheduled' | 'reopened'
@@ -100,6 +123,21 @@ export interface BriefingState {
   ttsAvailable: boolean
 }
 
+export interface AlertSettings {
+  /** Toca um som a cada disparo de lembrete. */
+  soundEnabled: boolean
+  /** Nome do arquivo em resources/sounds, ou 'proprio'. */
+  sound: string
+  /** Caminho do som escolhido pelo usuario (copiado para o userData). */
+  customSound: string | null
+  /** 0 a 1. */
+  volume: number
+  /** Aviso na tela, acima de qualquer janela. */
+  popupEnabled: boolean
+  /** Segundos ate sumir sozinho; 0 mantem ate clicar. */
+  popupSeconds: number
+}
+
 export interface AppSettings {
   launchAtLogin: boolean
   startMinimized: boolean
@@ -115,6 +153,7 @@ export interface AppSettings {
     rate: number
     maxArticlesPerSource: number
   }
+  alerts: AlertSettings
 }
 
 /* ---------- payloads de entrada ---------- */
@@ -161,9 +200,28 @@ export interface ProductivityStats {
   topSnoozedTasks: { task_id: number; title: string; snoozes: number }[]
 }
 
+/** Um lembrete que disparou, com o que a popup precisa desenhar. */
+export interface AlertPayload {
+  taskId: number
+  title: string
+  description: string | null
+  categoryName: string | null
+  categoryColor: string | null
+  dueAt: string | null
+  recurrence: string | null
+  attachments: number
+  /** Som ja resolvido em data URL pelo main, pronto para tocar. */
+  sound: string | null
+  volume: number
+  popupSeconds: number
+  showPopup: boolean
+}
+
 /** Evento que o main empurra para os renderers. */
 export type AppEvent =
   | { type: 'data-changed'; scope: 'tasks' | 'categories' | 'settings' | 'news' }
   | { type: 'reminder-fired'; taskId: number; title: string }
   | { type: 'briefing-state'; state: BriefingState }
   | { type: 'focus-task'; taskId: number }
+  | { type: 'alert'; alert: AlertPayload }
+  | { type: 'alert-dismiss'; taskId: number }

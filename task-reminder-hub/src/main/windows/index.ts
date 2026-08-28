@@ -10,9 +10,10 @@ const RENDERER_DIR = join(__dirname, '../renderer')
 let dashboard: BrowserWindow | null = null
 let postit: BrowserWindow | null = null
 let capture: BrowserWindow | null = null
+let alerta: BrowserWindow | null = null
 
 /** Em dev o renderer vem do servidor do electron-vite; em prod, do disco. */
-function loadPage(window: BrowserWindow, page: 'dashboard' | 'postit' | 'capture'): void {
+function loadPage(window: BrowserWindow, page: 'dashboard' | 'postit' | 'capture' | 'alerta'): void {
   const devServer = process.env['ELECTRON_RENDERER_URL']
   if (devServer) void window.loadURL(`${devServer}/${page}.html`)
   else void window.loadFile(join(RENDERER_DIR, `${page}.html`))
@@ -206,6 +207,79 @@ export function hideCapture(): void {
   getCapture()?.hide()
 }
 
+/* ------------------------------- alerta --------------------------------- */
+
+const ALERTA_LARGURA = 380
+
+/**
+ * Aviso de lembrete: fica acima de qualquer janela (inclusive tela cheia) e
+ * nao rouba o foco — o usuario continua digitando onde estava. A janela vive
+ * escondida desde o boot porque tambem e ela quem toca o som.
+ */
+export function createAlert(): BrowserWindow {
+  if (alerta && !alerta.isDestroyed()) return alerta
+
+  alerta = new BrowserWindow({
+    width: ALERTA_LARGURA,
+    height: 160,
+    frame: false,
+    transparent: true,
+    resizable: false,
+    movable: false,
+    skipTaskbar: true,
+    alwaysOnTop: true,
+    focusable: false,
+    show: false,
+    hasShadow: false,
+    fullscreenable: false,
+    webPreferences: { preload: PRELOAD, sandbox: false }
+  })
+
+  alerta.setAlwaysOnTop(true, 'screen-saver')
+  alerta.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true })
+  openLinksExternally(alerta)
+  alerta.on('closed', () => {
+    alerta = null
+  })
+
+  loadPage(alerta, 'alerta')
+  return alerta
+}
+
+export function getAlert(): BrowserWindow | null {
+  return alerta && !alerta.isDestroyed() ? alerta : null
+}
+
+/** Encosta no canto inferior direito da tela onde o cursor esta. */
+function posicionarAlerta(window: BrowserWindow): void {
+  const { workArea } = screen.getDisplayNearestPoint(screen.getCursorScreenPoint())
+  const [largura, altura] = window.getSize()
+  window.setPosition(
+    Math.round(workArea.x + workArea.width - largura - 16),
+    Math.round(workArea.y + workArea.height - altura - 16)
+  )
+}
+
+export function showAlert(): void {
+  const window = getAlert() ?? createAlert()
+  posicionarAlerta(window)
+  window.showInactive()
+  window.setAlwaysOnTop(true, 'screen-saver')
+}
+
+export function hideAlert(): void {
+  getAlert()?.hide()
+}
+
+/** A popup cresce conforme a fila de lembretes; a janela acompanha. */
+export function resizeAlert(height: number): void {
+  const window = getAlert()
+  if (!window) return
+  const altura = Math.max(120, Math.min(Math.round(height), 620))
+  window.setSize(ALERTA_LARGURA, altura)
+  if (window.isVisible()) posicionarAlerta(window)
+}
+
 /* ------------------------------ broadcast ------------------------------- */
 
 export function broadcast(event: AppEvent): void {
@@ -215,8 +289,8 @@ export function broadcast(event: AppEvent): void {
 }
 
 export function closeAll(): void {
-  for (const window of [dashboard, postit, capture]) {
+  for (const window of [dashboard, postit, capture, alerta]) {
     if (window && !window.isDestroyed()) window.destroy()
   }
-  dashboard = postit = capture = null
+  dashboard = postit = capture = alerta = null
 }

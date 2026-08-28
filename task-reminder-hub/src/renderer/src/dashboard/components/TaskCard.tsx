@@ -74,6 +74,13 @@ export function TaskCard({
           {done ? 'Concluída' : task.status === 'adiada' ? 'Adiada' : task.priority}
         </span>
 
+        {task.attachments > 0 && (
+          <span className="chip chip--plain" title={`${task.attachments} anexo(s)`}>
+            <Icon name="clipe" className="icon icon--sm" />
+            {task.attachments}
+          </span>
+        )}
+
         <span className="jcard__place">{task.due_at ? fmtRelative(task.due_at) : '—'}</span>
 
         <div className="jcard__actions">

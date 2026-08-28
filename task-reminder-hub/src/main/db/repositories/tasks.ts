@@ -19,13 +19,19 @@ interface ReminderRow extends Omit<Reminder, 'enabled'> {
 const mapReminder = (row: ReminderRow): Reminder => ({ ...row, enabled: toBool(row.enabled) })
 
 function withMeta(task: Task): TaskWithMeta {
-  const reminderRow = getDatabase()
-    .prepare('SELECT * FROM reminders WHERE task_id = ?')
-    .get(task.id) as ReminderRow | undefined
+  const db = getDatabase()
+  const reminderRow = db.prepare('SELECT * FROM reminders WHERE task_id = ?').get(task.id) as
+    | ReminderRow
+    | undefined
+  const anexos = db
+    .prepare('SELECT COUNT(*) AS n FROM attachments WHERE task_id = ?')
+    .get(task.id) as { n: number }
+
   return {
     ...task,
     category: task.category_id ? getCategory(task.category_id) : null,
-    reminder: reminderRow ? mapReminder(reminderRow) : null
+    reminder: reminderRow ? mapReminder(reminderRow) : null,
+    attachments: anexos.n
   }
 }
 
