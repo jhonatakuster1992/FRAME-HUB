@@ -15,6 +15,7 @@ import * as news from '../db/repositories/news'
 import * as attachmentsRepo from '../db/repositories/attachments'
 import * as attachments from '../attachments'
 import * as alerts from '../alerts'
+import * as push from '../push'
 import { getSettings, updateSettings } from '../db/repositories/settings'
 import type { AlertPayload } from '@shared/types'
 import type { Briefing } from '../news/briefing'
@@ -226,6 +227,14 @@ export function registerIpc(deps: IpcDeps): void {
     alerts.adoptCustomSound(escolha.filePaths[0])
     const settings = getSettings()
     deps.onSettingsChanged(settings)
+    windows.broadcast({ type: 'data-changed', scope: 'settings' })
+    return settings
+  })
+
+  ipcMain.handle(CH.pushTest, () => push.enviarTeste(getSettings().push))
+  ipcMain.handle(CH.pushStatus, () => push.ultimoEnvio())
+  ipcMain.handle(CH.pushNewTopic, () => {
+    const settings = updateSettings({ push: { ...getSettings().push, topic: push.novoTopico() } })
     windows.broadcast({ type: 'data-changed', scope: 'settings' })
     return settings
   })

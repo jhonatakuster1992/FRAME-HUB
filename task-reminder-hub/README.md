@@ -138,6 +138,38 @@ Os sons que acompanham o app estão em `resources/sounds` e foram
 sintetizados; um som próprio é copiado para `%APPDATA%/task-reminder-hub/sons`
 para não sumir se você mover o original.
 
+## Avisar no celular (e no relógio)
+
+O relógio não precisa de integração: Wear OS e Galaxy Watch espelham as
+notificações do celular. Então basta o lembrete chegar no telefone.
+
+O app publica no [ntfy](https://ntfy.sh) — HTTP simples, sem conta e sem
+custo. No celular: instale o app *ntfy*, assine o tópico que aparece em
+Ajustes, pronto.
+
+**O tópico é a senha.** Não existe cadastro: quem souber o nome lê seus
+lembretes e pode publicar neles. Por isso o app sorteia um nome longo
+(`tasker-` + 12 caracteres) em vez de deixar você inventar um fácil. Para um
+servidor com autenticação, o campo *Token* manda `Authorization: Bearer`.
+
+Detalhes do envio:
+
+- prioridade 4 (alta), que acorda a tela do celular e faz o relógio vibrar;
+- sem anexo o corpo vai em JSON (acento não sobrevive a cabeçalho HTTP), com
+  print vai por `PUT` e o texto em query param;
+- *Só se eu estiver longe (min)* usa o tempo de ociosidade do sistema: sentado
+  no PC você já viu o aviso na tela, e o celular vibrando de novo é ruído;
+- falha de rede nunca derruba o disparo local — vira status na tela de
+  Ajustes.
+
+**A limitação que vem junto:** o agendador mora neste PC. Com a máquina
+desligada ou sem internet, nada é enviado. Notificação que precisa tocar de
+madrugada com o PC desligado exige um agendamento na nuvem (Google Agenda,
+por exemplo) — é outra arquitetura.
+
+Também não dá para concluir a tarefa pelo celular: a notificação é de mão
+única, porque o PC não fica acessível pela internet.
+
 ## Sintaxe da captura rápida
 
 Uma linha cria tarefa, categoria, prioridade, data e recorrência:

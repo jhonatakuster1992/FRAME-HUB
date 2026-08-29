@@ -44,6 +44,11 @@ const api: Api = {
     pickSound: () => invoke(CH.settingsPickSound),
     testAlert: () => invoke(CH.settingsTestAlert)
   },
+  push: {
+    test: () => invoke(CH.pushTest),
+    status: () => invoke(CH.pushStatus),
+    newTopic: () => invoke(CH.pushNewTopic)
+  },
   news: {
     sources: () => invoke(CH.newsSources),
     addSource: (input) => invoke(CH.newsAddSource, input),

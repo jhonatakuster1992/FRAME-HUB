@@ -1,5 +1,6 @@
 import { useState } from 'react'
-import type { AlertSettings, AppSettings } from '@shared/types'
+import { useEffect } from 'react'
+import type { AlertSettings, AppSettings, PushSettings, PushStatus } from '@shared/types'
 import { api } from '../../shared/api'
 import { Icon } from '../../shared/Icon'
 import { ThemeSwitch } from '../../shared/ThemeSwitch'
@@ -21,6 +22,22 @@ export function SettingsSection({ settings, onChange }: Props): React.JSX.Elemen
 
   const mudarAlerta = (patch: Partial<AlertSettings>): void =>
     onChange({ alerts: { ...settings.alerts, ...patch } })
+
+  const mudarPush = (patch: Partial<PushSettings>): void =>
+    onChange({ push: { ...settings.push, ...patch } })
+
+  const [statusPush, setStatusPush] = useState<PushStatus | null>(null)
+  const [enviando, setEnviando] = useState(false)
+
+  useEffect(() => {
+    void api.push.status().then(setStatusPush)
+  }, [])
+
+  const testarPush = async (): Promise<void> => {
+    setEnviando(true)
+    setStatusPush(await api.push.test())
+    setEnviando(false)
+  }
 
   const toggle = (
     key: 'launchAtLogin' | 'startMinimized' | 'postitVisible' | 'postitAlwaysOnTop',
@@ -221,6 +238,130 @@ export function SettingsSection({ settings, onChange }: Props): React.JSX.Elemen
             cancela o sumiço automático.
           </p>
         </div>
+
+        <hr className="divider" />
+
+        <h3 style={{ fontSize: 14 }}>Avisar no celular</h3>
+
+        <label className="switch-row">
+          <input
+            type="checkbox"
+            checked={settings.push.enabled}
+            onChange={(event) => {
+              const ligando = event.target.checked
+              mudarPush({ enabled: ligando })
+              if (ligando && !settings.push.topic) void api.push.newTopic()
+            }}
+          />
+          <span>
+            Enviar o lembrete para o celular
+            <small>
+              Instale o app <b>ntfy</b> (Play Store ou F-Droid), assine o tópico abaixo e o aviso
+              chega no celular — e no relógio, que espelha as notificações. Só dispara com este PC
+              ligado.
+            </small>
+          </span>
+        </label>
+
+        {settings.push.enabled && (
+          <>
+            <div>
+              <span className="label">Tópico (funciona como senha)</span>
+              <div className="form-row">
+                <input
+                  className="field"
+                  value={settings.push.topic}
+                  onChange={(event) => mudarPush({ topic: event.target.value.trim() })}
+                  placeholder="tasker-xxxxxxxx"
+                  spellCheck={false}
+                />
+                <button
+                  className="btn"
+                  style={{ flex: 'none' }}
+                  onClick={() => void api.push.newTopic()}
+                  title="Sortear outro"
+                >
+                  <Icon name="recarregar" className="icon icon--sm" /> Sortear
+                </button>
+                <button
+                  className="btn"
+                  style={{ flex: 'none' }}
+                  onClick={() => void navigator.clipboard.writeText(settings.push.topic)}
+                >
+                  Copiar
+                </button>
+              </div>
+              <p className="section__sub" style={{ marginTop: 6 }}>
+                Quem souber o nome do tópico lê seus lembretes. Não compartilhe — e prefira um
+                sorteado a um nome fácil.
+              </p>
+            </div>
+
+            <div className="form-row">
+              <div>
+                <span className="label">Servidor</span>
+                <input
+                  className="field"
+                  value={settings.push.server}
+                  onChange={(event) => mudarPush({ server: event.target.value.trim() })}
+                  spellCheck={false}
+                />
+              </div>
+              <div>
+                <span className="label">Token (opcional)</span>
+                <input
+                  className="field"
+                  type="password"
+                  value={settings.push.token ?? ''}
+                  onChange={(event) => mudarPush({ token: event.target.value.trim() || null })}
+                  placeholder="tk_… se o servidor exigir"
+                  spellCheck={false}
+                />
+              </div>
+              <div>
+                <span className="label">Só se eu estiver longe (min)</span>
+                <input
+                  className="field"
+                  type="number"
+                  min={0}
+                  max={120}
+                  value={settings.push.onlyIdleMinutes}
+                  onChange={(event) => mudarPush({ onlyIdleMinutes: Number(event.target.value) })}
+                />
+              </div>
+            </div>
+
+            <label className="switch-row">
+              <input
+                type="checkbox"
+                checked={settings.push.includeImage}
+                onChange={(event) => mudarPush({ includeImage: event.target.checked })}
+              />
+              <span>
+                Mandar o print junto
+                <small>
+                  O primeiro print anexado à tarefa vai na notificação. No servidor público o
+                  arquivo expira em 3 horas e precisa ter até 15 MB.
+                </small>
+              </span>
+            </label>
+
+            <div className="volume">
+              <button className="btn btn--soft" onClick={() => void testarPush()} disabled={enviando}>
+                <Icon name="som" className="icon icon--sm" />
+                {enviando ? 'Enviando…' : 'Enviar teste para o celular'}
+              </button>
+              {statusPush && (
+                <span
+                  className="section__sub"
+                  style={{ color: statusPush.ok ? 'var(--done)' : 'var(--danger)' }}
+                >
+                  {statusPush.ok ? 'Último envio: tudo certo' : `Falhou: ${statusPush.error}`}
+                </span>
+              )}
+            </div>
+          </>
+        )}
 
         <hr className="divider" />
 

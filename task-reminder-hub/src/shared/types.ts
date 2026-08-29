@@ -138,6 +138,21 @@ export interface AlertSettings {
   popupSeconds: number
 }
 
+export interface PushSettings {
+  /** Envia o lembrete para o celular (e, por espelhamento, para o relógio). */
+  enabled: boolean
+  /** Servidor ntfy — o público ou um seu. */
+  server: string
+  /** O tópico é a senha: quem souber, lê. Gerado longo e aleatório. */
+  topic: string
+  /** Token de acesso, se o servidor exigir. */
+  token: string | null
+  /** Manda o primeiro print da tarefa junto da notificação. */
+  includeImage: boolean
+  /** Só envia se o PC estiver parado há N minutos (0 = sempre envia). */
+  onlyIdleMinutes: number
+}
+
 export interface AppSettings {
   launchAtLogin: boolean
   startMinimized: boolean
@@ -154,6 +169,14 @@ export interface AppSettings {
     maxArticlesPerSource: number
   }
   alerts: AlertSettings
+  push: PushSettings
+}
+
+/** Resultado do último envio, para a tela de ajustes mostrar. */
+export interface PushStatus {
+  ok: boolean
+  at: string
+  error?: string
 }
 
 /* ---------- payloads de entrada ---------- */

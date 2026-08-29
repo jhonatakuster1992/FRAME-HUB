@@ -15,6 +15,14 @@ export const DEFAULT_SETTINGS: AppSettings = {
     rate: 1,
     maxArticlesPerSource: 5
   },
+  push: {
+    enabled: false,
+    server: 'https://ntfy.sh',
+    topic: '',
+    token: null,
+    includeImage: true,
+    onlyIdleMinutes: 0
+  },
   alerts: {
     soundEnabled: true,
     sound: 'sino.wav',
@@ -31,7 +39,8 @@ function merge(base: AppSettings, patch: Partial<AppSettings>): AppSettings {
     ...base,
     ...patch,
     news: { ...base.news, ...(patch.news ?? {}) },
-    alerts: { ...base.alerts, ...(patch.alerts ?? {}) }
+    alerts: { ...base.alerts, ...(patch.alerts ?? {}) },
+    push: { ...base.push, ...(patch.push ?? {}) }
   }
 }
 

@@ -10,6 +10,7 @@ import type {
   HistoryEntry,
   NewsSource,
   ProductivityStats,
+  PushStatus,
   TaskInput,
   TaskQuery,
   TaskWithMeta
@@ -43,6 +44,9 @@ export const CH = {
 
   settingsPickSound: 'settings:pick-sound',
   settingsTestAlert: 'settings:test-alert',
+  pushTest: 'push:test',
+  pushStatus: 'push:status',
+  pushNewTopic: 'push:new-topic',
 
   categoriesList: 'categories:list',
   categoriesCreate: 'categories:create',
@@ -119,6 +123,14 @@ export interface Api {
     pickSound(): Promise<AppSettings>
     /** Dispara um alerta de exemplo com as configurações atuais. */
     testAlert(): Promise<AlertPayload>
+  }
+  push: {
+    /** Manda uma notificação de teste para o celular. */
+    test(): Promise<PushStatus>
+    /** Resultado do último envio, se houve algum. */
+    status(): Promise<PushStatus | null>
+    /** Sorteia um tópico novo e já salva. */
+    newTopic(): Promise<AppSettings>
   }
   news: {
     sources(): Promise<NewsSource[]>

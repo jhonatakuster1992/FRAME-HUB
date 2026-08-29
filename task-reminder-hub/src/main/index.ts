@@ -1,9 +1,10 @@
 import { app, globalShortcut, powerMonitor } from 'electron'
 import { join } from 'node:path'
-import type { AppSettings } from '@shared/types'
+import type { AppSettings, TaskWithMeta } from '@shared/types'
 import { createDatabase, setDatabase, closeDatabase } from './db'
 import * as alerts from './alerts'
 import { configureStorage, pruneOrphans } from './attachments'
+import * as push from './push'
 import { getSettings, updateSettings } from './db/repositories/settings'
 import * as tasks from './db/repositories/tasks'
 import { registerIpc } from './ipc'
@@ -90,6 +91,8 @@ function bootstrap(): void {
           })
         }
 
+        enviarParaOCelular(task)
+
         windows.broadcast({ type: 'reminder-fired', taskId: task.id, title: task.title })
         refreshTray()
       }
@@ -118,6 +121,22 @@ function bootstrap(): void {
     windows.closeAll()
     closeDatabase()
   })
+}
+
+/**
+ * Push para o celular. O gate de ociosidade existe porque, sentado no PC, o
+ * aviso na tela já resolveu — o celular vibrando de novo vira ruído.
+ */
+function enviarParaOCelular(task: TaskWithMeta): void {
+  const { push: config } = getSettings()
+  if (!config.enabled || !config.topic) return
+
+  if (config.onlyIdleMinutes > 0) {
+    const paradoHaMinutos = powerMonitor.getSystemIdleTime() / 60
+    if (paradoHaMinutos < config.onlyIdleMinutes) return
+  }
+
+  void push.enviarLembrete(config, task)
 }
 
 function shouldStartHidden(settings: AppSettings): boolean {
