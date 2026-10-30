@@ -1,0 +1,11 @@
+{
+  "name": "5-projetos-claude",
+  "private": true,
+  "description": "Reels de 40 s em motion graphics (GSAP) com narração",
+  "scripts": {
+    "render": "./render.sh"
+  },
+  "dependencies": {
+    "gsap": "3.13.0"
+  }
+}

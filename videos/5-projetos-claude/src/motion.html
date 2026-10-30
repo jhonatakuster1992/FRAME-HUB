@@ -1,0 +1,543 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>5 Projetos Claude</title>
+<style>
+  :root { --red: #d3141c; --paper: #e6e5e2; --ink: #0d0d0d; }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { width: 1080px; height: 1920px; overflow: hidden; background: #000; }
+  body { font-family: "Inter Display", "Inter", sans-serif; -webkit-font-smoothing: antialiased; }
+  #stage { position: absolute; left: 0; top: 0; width: 1080px; height: 1920px; overflow: hidden; background: #000; transform-origin: 0 0; }
+  .scene { position: absolute; inset: 0; overflow: hidden; visibility: hidden; }
+  .cam, .drift { position: absolute; inset: 0; }
+  .light { background: radial-gradient(ellipse at 50% 38%, #f6f6f4 0%, var(--paper) 55%, #c8c7c4 100%); color: var(--ink); }
+  .dark { background: #000; color: #fff; }
+  .abs { position: absolute; }
+  .layer { position: absolute; inset: 0; }
+  .img { position: absolute; inset: 0; background-size: cover; background-position: center; }
+  .h { font-weight: 800; letter-spacing: -0.065em; line-height: .88; }
+  .l { font-weight: 300; letter-spacing: -0.05em; line-height: .95; }
+  .m { font-weight: 500; letter-spacing: -0.03em; }
+  .w { display: inline-block; white-space: pre; will-change: opacity, filter; }
+  .label { font-weight: 700; font-size: 24px; letter-spacing: .32em; text-transform: uppercase; color: var(--red); }
+  .micro { font-family: Inter, sans-serif; font-weight: 600; font-size: 15px; letter-spacing: .08em; text-transform: uppercase; line-height: 1.35; }
+  .giant { font-weight: 900; letter-spacing: -0.075em; line-height: .78; white-space: nowrap; }
+  .ghost { font-weight: 800; letter-spacing: -0.07em; line-height: .8; white-space: nowrap; color: #6b6b6b; }
+  .chip { display: inline-block; font-family: Inter, sans-serif; font-weight: 700; font-size: 34px; padding: 14px 26px; border-radius: 999px; border: 2px solid currentColor; margin-right: 14px; }
+  .bubble { position: absolute; border-radius: 30px; font-family: Inter, sans-serif; font-size: 36px; font-weight: 500; letter-spacing: -.02em; padding: 24px 34px; }
+  .card { position: absolute; background: #fff; color: #111; border-radius: 30px; box-shadow: 0 30px 80px rgba(0,0,0,.5); font-family: Inter, sans-serif; }
+  .ring { position: absolute; border-radius: 50%; border: 2px solid currentColor; }
+  .bracket { position: absolute; width: 140px; height: 140px; border-color: #fff; border-style: solid; opacity: .8; }
+  .rule { position: absolute; height: 1px; background: currentColor; opacity: .35; }
+  #grain { position: absolute; left: -60px; top: -60px; width: 1200px; height: 2160px; pointer-events: none; opacity: .1; mix-blend-mode: overlay; z-index: 50; }
+  #vignette { position: absolute; inset: 0; pointer-events: none; z-index: 49; background: radial-gradient(ellipse at 50% 50%, rgba(0,0,0,0) 55%, rgba(0,0,0,.35) 100%); }
+  #hud { position: absolute; inset: 0; z-index: 48; color: #fff; mix-blend-mode: difference; pointer-events: none; }
+  #fade { position: absolute; inset: 0; background: #000; z-index: 60; opacity: 0; }
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute">
+  <defs>
+    <filter id="mb" x="-30%" y="-5%" width="160%" height="110%"><feGaussianBlur id="mbx" stdDeviation="0 0"/></filter>
+    <filter id="mbv" x="-5%" y="-30%" width="110%" height="160%"><feGaussianBlur id="mby" stdDeviation="0 0"/></filter>
+  </defs>
+</svg>
+<div id="stage">
+
+<!-- S1 · gancho ------------------------------------------------------------>
+<section class="scene light" id="s1"><div class="cam"><div class="drift">
+  <div class="layer" data-depth="1"><div class="img" style="background-image:url(../assets/01-gancho.jpg)"></div></div>
+  <div class="layer" data-depth="1.3">
+    <div class="abs" id="s1-circle" style="left:110px;top:400px;width:440px;height:440px;border-radius:50%;background:var(--red);mix-blend-mode:multiply"></div>
+    <div class="abs" id="s1-dots" style="left:60px;top:350px;width:540px;height:540px;border-radius:50%;border:4px dotted var(--red);opacity:.7"></div>
+    <svg class="abs" style="left:0;top:0" width="1080" height="1100">
+      <path id="s1-x1" d="M515 310 L885 880" stroke="#d3141c" stroke-width="24" stroke-linecap="round" fill="none"/>
+      <path id="s1-x2" d="M885 300 L515 890" stroke="#d3141c" stroke-width="24" stroke-linecap="round" fill="none"/>
+    </svg>
+  </div>
+  <div class="layer" data-depth="1.6">
+    <div class="micro abs" style="left:70px;top:90px">fim de semana<br>com o claude</div>
+    <div class="h abs" style="left:70px;top:150px;font-size:52px">ESQUECE<br>O CURSO</div>
+    <div class="ring abs" style="right:70px;top:80px;width:72px;height:72px;opacity:.6"></div>
+    <div class="h abs" style="right:95px;top:96px;font-size:40px">5</div>
+    <div class="rule" style="left:70px;top:1130px;width:940px;color:#111"></div>
+    <div class="micro abs" style="left:70px;top:1142px;width:940px;display:flex;justify-content:space-between;opacity:.6"><span>vol. 01</span><span>aprender fazendo</span><span>sem certificado</span><span>2026</span></div>
+    <div class="abs" style="left:820px;top:1180px;width:190px;height:52px;background:repeating-linear-gradient(90deg,#111 0 3px,transparent 3px 6px,#111 6px 7px,transparent 7px 11px)"></div>
+  </div>
+  <div class="layer" data-depth="2.2" data-text>
+    <div class="abs" style="left:70px;top:1250px">
+      <div class="l say" data-l="0" data-w="esquece" style="font-size:92px;color:#555">esquece o</div>
+      <div class="h say" data-l="0" data-w="próximo" style="font-size:158px">próximo</div>
+      <div class="h say" data-l="0" data-w="curso" style="font-size:158px">curso de IA.</div>
+    </div>
+  </div>
+  <div class="layer" data-depth="3" data-giant>
+    <div class="giant abs ghostslide" style="left:0;top:1700px;font-size:420px;filter:blur(3px);color:#0d0d0d">CURSO CURSO</div>
+  </div>
+</div></div></section>
+
+<!-- S2a · 5 projetos (preto) --------------------------------------------------->
+<section class="scene dark" id="s2"><div class="cam"><div class="drift">
+  <div class="layer" data-depth="1"><div class="img" style="background-image:url(../assets/02-fundo-lousa.jpg);opacity:.45"></div></div>
+  <div class="layer" data-depth="1.2">
+    <div class="abs" id="s2-planet" style="left:-380px;top:1250px;width:1000px;height:1000px;border-radius:50%;background:radial-gradient(circle at 68% 26%,#ff4a4a 0%,#c3121a 30%,#4a0306 62%,#000 78%)"></div>
+    <div class="ring abs" style="right:-360px;top:-360px;width:720px;height:720px;opacity:.5"></div>
+    <div class="abs" id="s2-star" style="left:60px;top:420px;font-size:70px;color:#fff;font-weight:800">✳</div>
+  </div>
+  <div class="layer" data-depth="2" data-text>
+    <div class="abs" id="s2-text" style="left:0;width:1080px;top:760px;text-align:center">
+      <div class="l say" data-l="1" data-w="cinco" style="font-size:80px;color:#aaa">cinco</div>
+      <div class="h say" data-l="1" data-w="projetos" style="font-size:190px">projetos</div>
+      <div class="l say" data-l="1" data-w="no" style="font-size:80px;color:#aaa;margin-top:16px">no Claude</div>
+      <div class="h say" data-l="1" data-w="ensinam" style="font-size:150px">ensinam <span id="s2-mais" style="color:var(--red)">mais.</span></div>
+    </div>
+  </div>
+  <div class="layer" data-depth="1.5">
+    <div class="micro abs" style="right:70px;top:150px;text-align:right;opacity:.7">5 projetos<br>no claude</div>
+  </div>
+</div></div></section>
+
+<!-- S2b · fim de semana (claro) ---------------------------------------------->
+<section class="scene light" id="s2b"><div class="cam"><div class="drift">
+  <div class="layer" data-depth="1">
+    <div class="ring abs" style="left:-260px;top:120px;width:1600px;height:1600px;opacity:.14"></div>
+    <div class="abs" style="left:120px;top:330px;width:400px;height:520px;border:3px solid #111"></div>
+    <div class="abs" style="left:560px;top:330px;width:400px;height:520px;border:3px solid #111;background:#111"></div>
+    <div class="h abs" style="left:150px;top:370px;font-size:150px">SÁB</div>
+    <div class="h abs" style="left:590px;top:370px;font-size:150px;color:#fff">DOM</div>
+    <div class="micro abs" style="left:150px;top:800px">dia 01 · construir</div>
+    <div class="micro abs" style="left:590px;top:800px;color:#fff">dia 02 · usar</div>
+  </div>
+  <div class="layer" data-depth="1.4">
+    <div class="abs" id="s2b-stamp" style="left:400px;top:560px;width:260px;height:260px;border-radius:50%;background:var(--red);mix-blend-mode:multiply"></div>
+  </div>
+  <div class="layer" data-depth="2" data-text>
+    <div class="abs" style="left:70px;top:1050px">
+      <div class="l say" data-l="1" data-w="e" data-s="1" style="font-size:96px;color:#666">e cabem num</div>
+      <div class="h say" data-l="1" data-w="fim" style="font-size:170px">fim de</div>
+      <div class="h say" data-l="1" data-w="semana" style="font-size:170px">semana.</div>
+    </div>
+  </div>
+  <div class="layer" data-depth="2.8" data-giant>
+    <div class="giant abs ghostslide" style="left:0;top:1640px;font-size:330px;filter:blur(3px);opacity:.9">SÁBADO DOMINGO</div>
+  </div>
+</div></div></section>
+
+<!-- S3 · 01 painel ------------------------------------------------------------>
+<section class="scene dark" id="s3"><div class="cam"><div class="drift">
+  <div class="layer" data-depth="1"><div class="img" style="background-image:url(../assets/03-painel-amanhecer.jpg)"></div></div>
+  <div class="layer" data-depth="1.5">
+    <div class="label abs" style="left:70px;top:120px">projeto 01 / 05</div>
+    <div class="bracket" style="right:60px;top:110px;border-width:2px 2px 0 0"></div>
+    <div class="h abs" style="left:58px;top:960px;font-size:240px;color:var(--red)">01</div>
+  </div>
+  <div class="layer" data-depth="2.1" data-text>
+    <div class="abs" style="left:380px;top:985px">
+      <div class="l say" data-l="2" data-w="painel" style="font-size:72px;color:#9a9a9a">um painel</div>
+      <div class="h say" data-l="2" data-w="dia" style="font-size:150px">do dia.</div>
+    </div>
+    <div class="abs" style="left:70px;top:1250px;color:#fff">
+      <span class="chip pop" data-l="2" data-w="agenda">agenda</span><span class="chip pop" data-l="2" data-w="e-mail">e-mail</span><span class="chip pop" data-l="2" data-w="tarefas" style="background:var(--red);border-color:var(--red)">tarefas</span>
+    </div>
+    <div class="card pop" data-l="2" data-w="resumo" style="left:70px;top:1380px;width:940px;padding:28px 40px">
+      <div style="display:flex;justify-content:space-between;font-size:26px;color:#888;font-weight:600"><span>resumo da manhã</span><span>07:00</span></div>
+      <div style="font-size:40px;font-weight:800;letter-spacing:-.03em;margin:12px 0 6px">Bom dia. Hoje tem:</div>
+      <div style="font-size:31px;line-height:1.65;color:#333">
+        <div class="pop" data-l="2" data-w="toda"><b style="color:var(--red)">3</b>&nbsp; reuniões, a primeira às 9h30</div>
+        <div class="pop" data-l="2" data-w="toda" data-d="0.15"><b style="color:var(--red)">2</b>&nbsp; e-mails esperando resposta</div>
+        <div class="pop" data-l="2" data-w="manhã"><b style="color:var(--red)">1</b>&nbsp; pendência: enviar a proposta</div>
+      </div>
+    </div>
+  </div>
+</div></div></section>
+
+<!-- S4 · 02 segundo cérebro ---------------------------------------------------->
+<section class="scene light" id="s4"><div class="cam"><div class="drift">
+  <div class="layer" data-depth="1"><div class="img" style="background-image:url(../assets/04-segundo-cerebro.jpg)"></div></div>
+  <div class="layer" data-depth="1.4">
+    <div class="abs" style="left:780px;top:150px;width:230px;height:300px;background:var(--red);mix-blend-mode:multiply"></div>
+    <div class="abs" style="left:755px;top:125px;width:280px;height:350px;border:3px solid var(--red)"></div>
+    <div class="label abs" style="left:70px;top:120px">projeto 02 / 05</div>
+    <div class="h abs" style="left:62px;top:170px;font-size:190px">02</div>
+    <div class="ring abs" style="left:-300px;top:260px;width:1680px;height:1680px;opacity:.12"></div>
+  </div>
+  <div class="layer" data-depth="2.1" data-text>
+    <div class="abs" style="left:70px;top:1150px">
+      <div class="l say" data-l="3" data-w="segundo" style="font-size:96px;color:#666">um segundo</div>
+      <div class="h say" data-l="3" data-w="cérebro" style="font-size:165px">cérebro.</div>
+    </div>
+    <div class="abs" style="left:70px;top:1415px;color:#111">
+      <span class="chip pop" data-l="3" data-w="contrato">contrato</span><span class="chip pop" data-l="3" data-w="aluguel">aluguel</span><span class="chip pop" data-l="3" data-w="seguro" style="background:var(--red);border-color:var(--red);color:#fff">seguro</span>
+    </div>
+    <div class="bubble pop" data-l="3" data-w="perguntar" data-d="-0.25" style="right:70px;top:1540px;background:#151515;color:#fff">Quando vence o seguro do carro?</div>
+    <div class="bubble pop" data-l="3" data-w="perguntar" data-d="0.45" style="left:70px;top:1660px;background:#fff;color:#111;box-shadow:0 20px 50px rgba(0,0,0,.15)"><span style="color:var(--red);font-weight:800">✳</span>&nbsp; 14 de março. Te aviso antes?</div>
+  </div>
+</div></div></section>
+
+<!-- S5 · 03 revisão ----------------------------------------------------------->
+<section class="scene dark" id="s5"><div class="cam"><div class="drift">
+  <div class="layer" data-depth="1"><div class="img" style="background-image:url(../assets/05-revisao-noite.jpg)"></div></div>
+  <div class="layer" data-depth="1.5">
+    <div class="label abs" style="left:70px;top:120px">projeto 03 / 05</div>
+    <div class="bracket" style="left:50px;top:1150px;border-width:2px 0 0 2px"></div>
+    <div class="bracket" style="right:50px;bottom:160px;border-width:0 2px 2px 0"></div>
+  </div>
+  <div class="layer" data-depth="2.1" data-text>
+    <div class="h abs" style="right:70px;top:1010px;font-size:150px;color:var(--red)">03</div>
+    <div class="abs" style="left:90px;top:1190px">
+      <div class="l say" data-l="4" data-w="agente" style="font-size:82px;color:#9a9a9a">um agente que</div>
+      <div class="h say" data-l="4" data-w="revisa" style="font-size:132px">revisa o</div>
+      <div class="h say" data-l="4" data-w="seu" style="font-size:132px">seu dia.</div>
+    </div>
+    <div class="abs" style="left:90px;top:1560px;font-family:Inter,sans-serif;font-size:36px;line-height:1.7;color:#ddd">
+      <div class="pop" data-l="4" data-w="revisa" data-d="0.5"><span style="color:var(--red)">●</span>&nbsp; toda noite: o que funcionou?</div>
+      <div class="pop" data-l="4" data-w="domingo"><span style="color:var(--red)">●</span>&nbsp; todo domingo: <b style="color:#fff">o que mudar.</b></div>
+    </div>
+  </div>
+</div></div></section>
+
+<!-- S6 · 04 marca --------------------------------------------------------------->
+<section class="scene dark" id="s6"><div class="cam"><div class="drift">
+  <div class="layer" data-depth="1"><div class="img" style="background-image:url(../assets/06-kit-marca.jpg)"></div></div>
+  <div class="layer" data-depth="1.3" data-giant>
+    <div class="ghost abs ghostslide" style="left:-40px;top:1420px;font-size:330px">marca marca</div>
+    <div class="ghost abs ghostslide2" style="left:-260px;top:1680px;font-size:330px">marca marca</div>
+  </div>
+  <div class="layer" data-depth="1.6">
+    <div class="label abs" style="left:70px;top:960px">projeto 04 / 05</div>
+    <div class="h abs" style="right:70px;top:935px;font-size:200px;color:var(--red)">04</div>
+  </div>
+  <div class="layer" data-depth="2.2" data-text>
+    <div class="abs" style="left:70px;top:1030px">
+      <div class="l say" data-l="5" data-w="kit" style="font-size:96px;color:#9a9a9a">o kit da</div>
+      <div class="h say" data-l="5" data-w="marca" style="font-size:165px">sua <span id="s6-marca">marca.</span></div>
+    </div>
+    <div class="abs" style="left:70px;top:1330px;color:#fff">
+      <span class="chip pop" data-l="5" data-w="cores">cores</span><span class="chip pop" data-l="5" data-w="fontes">fontes</span><span class="chip pop" data-l="5" data-w="tom" style="background:var(--red);border-color:var(--red)">tom de voz</span>
+    </div>
+  </div>
+</div></div></section>
+
+<!-- S7 · 05 biblioteca ---------------------------------------------------------->
+<section class="scene dark" id="s7"><div class="cam"><div class="drift">
+  <div class="layer" data-depth="1"><div class="img" id="s7-img" style="background-image:url(../assets/07-biblioteca.jpg)"></div></div>
+  <div class="layer" data-depth="1.5">
+    <div class="abs" style="left:0;top:0;width:1080px;height:420px;background:linear-gradient(180deg,rgba(0,0,0,.85),rgba(0,0,0,0))"></div>
+    <div class="label abs" style="left:70px;top:120px">projeto 05 / 05</div>
+    <div class="h abs" style="left:62px;top:165px;font-size:170px;color:var(--red)">05</div>
+    <div class="bracket" style="right:60px;top:110px;border-width:2px 2px 0 0"></div>
+  </div>
+  <div class="layer" data-depth="2.1" data-text>
+    <div class="abs" style="left:70px;top:1260px">
+      <div class="l say" data-l="6" data-w="biblioteca" style="font-size:92px;color:#9a9a9a">a biblioteca</div>
+      <div class="h say" data-l="6" data-w="sua" style="font-size:150px">da sua vida.</div>
+    </div>
+    <div class="bubble pop" data-l="6" data-w="tudo" style="left:70px;top:1500px;background:#f1ece2;color:#151515">"O que eu li sobre preço no ano passado?"</div>
+    <div class="m abs say" data-l="6" data-w="lugar" style="left:70px;top:1640px;font-size:40px;color:#ccc">tudo que você leu, num lugar só.</div>
+  </div>
+</div></div></section>
+
+<!-- S8 · por onde começar ----------------------------------------------------->
+<section class="scene light" id="s8"><div class="cam"><div class="drift">
+  <div class="layer" data-depth="1">
+    <div class="img" style="background-image:url(../assets/08-comecar-hoje.jpg)"></div>
+    <div class="abs" style="left:198px;top:132px;width:520px;height:290px;overflow:hidden">
+      <div id="s8-type" style="font-family:Inter,sans-serif;font-size:21px;line-height:1.42;color:#1a1a1a;white-space:pre-wrap">Quero montar o meu painel do dia.
+1. Pergunta quais apps eu uso pra agenda, e-mail e tarefas.
+2. Me guia pra conectar cada um.
+3. Cria uma página com o resumo de toda manhã.
+Uma pergunta por vez.</div>
+    </div>
+  </div>
+  <div class="layer" data-depth="1.5">
+    <div class="label abs" style="left:70px;top:980px">por onde começar</div>
+  </div>
+  <div class="layer" data-depth="2.1" data-text>
+    <div class="abs" style="left:70px;top:1040px">
+      <div class="l say" data-l="7" data-w="tenta" style="font-size:88px;color:#666">não tenta os cinco</div>
+      <div class="h say" data-l="7" data-w="uma" style="font-size:118px">de uma vez.</div>
+      <div style="margin-top:34px;white-space:nowrap">
+        <span class="h say" data-l="7" data-w="começa" style="font-size:140px">começa </span><span class="h pop" data-l="7" data-w="primeiro" style="display:inline-block;font-size:140px;background:var(--red);color:#fff;padding:0 18px 8px">pelo 01</span>
+      </div>
+      <div class="h say" data-l="7" data-w="hoje" style="font-size:140px">hoje.</div>
+    </div>
+  </div>
+</div></div></section>
+
+<!-- S9 · CTA ---------------------------------------------------------------->
+<section class="scene dark" id="s9"><div class="cam"><div class="drift">
+  <div class="layer" data-depth="1"><div class="img" style="background-image:url(../assets/02-fundo-lousa.jpg);opacity:.85"></div></div>
+  <div class="layer" data-depth="1.3" data-giant>
+    <div class="ghost abs ghostslide" style="left:-60px;top:1390px;font-size:300px;color:#3a3a3a">projetos projetos</div>
+    <div class="ghost abs ghostslide2" style="left:-330px;top:1640px;font-size:300px;color:#3a3a3a">projetos projetos</div>
+  </div>
+  <div class="layer" data-depth="2" data-text>
+    <div class="l abs say" data-l="8" data-w="comenta" style="left:0;width:1080px;top:600px;text-align:center;font-size:110px">comenta</div>
+    <div class="abs slam" data-l="8" data-w="projetos" style="left:70px;top:750px;width:940px;height:270px;background:var(--red);display:flex;align-items:center;justify-content:center">
+      <div class="giant" style="font-size:212px;color:#fff;letter-spacing:-.06em">PROJETOS</div>
+    </div>
+    <div class="abs" style="left:0;width:1080px;top:1100px;text-align:center">
+      <div class="m say" data-l="8" data-w="que" style="font-size:52px;color:#ccc">que eu te mando</div>
+      <div class="h say" data-l="8" data-w="pedido" style="font-size:84px;margin-top:10px">o pedido pronto.</div>
+    </div>
+  </div>
+</div></div></section>
+
+<!-- S10 · assinatura ------------------------------------------------------------->
+<section class="scene dark" id="s10"><div class="cam"><div class="drift">
+  <div class="layer" data-depth="1">
+    <div class="abs" id="s10-title" style="left:0;width:1080px;top:880px;text-align:center;font-weight:700;letter-spacing:-.05em;font-size:76px;color:#fff">5 projetos no claude</div>
+    <div class="abs" id="s10-sub" style="left:0;width:1080px;top:1010px;text-align:center" class="micro"><span class="micro" style="font-size:22px;letter-spacing:.3em;color:#bbb">salva pra fazer no fim de semana</span></div>
+    <div class="abs" id="s10-icon" style="left:470px;top:850px;width:140px;height:140px">
+      <div class="abs g-r" style="inset:0;border-radius:50%;background:#ff2a2a;mix-blend-mode:screen"></div>
+      <div class="abs g-c" style="inset:0;border-radius:50%;background:#00e5ff;mix-blend-mode:screen"></div>
+      <div class="abs g-m" style="inset:0;border-radius:50%;background:var(--red)"></div>
+      <div class="abs" style="left:0;top:0;width:140px;height:140px;display:flex;align-items:center;justify-content:center;font-size:74px;color:#fff;font-weight:800">✳</div>
+    </div>
+  </div>
+</div></div></section>
+
+<div id="hud">
+  <div class="abs" style="right:70px;top:1760px;width:30px;height:30px;border:2px solid #fff;border-radius:9px"></div>
+  <div class="micro abs" style="right:70px;top:1800px;text-align:right;font-size:13px;opacity:.85">5 projetos_<br>no claude</div>
+</div>
+<div id="vignette"></div>
+<canvas id="grain" width="600" height="1080"></canvas>
+<div id="fade"></div>
+</div>
+
+<script src="../node_modules/gsap/dist/gsap.min.js"></script>
+<script src="narration.js"></script>
+<script>
+gsap.ticker.lagSmoothing(0);
+const tl = gsap.timeline({ paused: true });
+const SFX = [];
+const DUR = 40;
+const $ = s => document.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+
+// --- tempos da narração --------------------------------------------------
+const norm = s => s.toLowerCase().replace(/[^a-zà-ú0-9-]/g, '');
+function W(line, word, sentence) {
+  const sents = NARR[line].sentences;
+  for (let si = 0; si < sents.length; si++) {
+    if (sentence !== undefined && si !== sentence) continue;
+    const f = sents[si].words.find(x => norm(x.w) === norm(word));
+    if (f) return f.t;
+  }
+  throw new Error(`palavra não encontrada: ${line}/${word}`);
+}
+const S = i => NARR[i].start - 0.15;
+const T = {
+  s1: 0, s2: 3.0, s2b: NARR[1].sentences[1].start - 0.12, s3: S(2), s4: S(3), s5: S(4),
+  s6: S(5), s7: S(6), s8: S(7), s9: S(8), s10: NARR[8].end + 0.45, end: DUR,
+};
+const order = ['s1', 's2', 's2b', 's3', 's4', 's5', 's6', 's7', 's8', 's9', 's10'];
+const end = id => T[order[order.indexOf(id) + 1]] ?? DUR;
+
+// --- blocos de animação ----------------------------------------------------
+function scene(id) {
+  const el = $('#' + id), t0 = T[id], t1 = end(id);
+  tl.set(el, { visibility: 'visible' }, t0).set(el, { visibility: 'hidden' }, t1);
+  // deriva de câmera constante, como na referência
+  tl.fromTo(el.querySelector('.drift'), { scale: 1.0, y: 0 }, { scale: 1.065, y: -26, ease: 'none', duration: t1 - t0 }, t0);
+  // texto sobe devagar enquanto a cena dura
+  $$('.drift-text', el).forEach(l => tl.fromTo(l, { y: 18 }, { y: -22, ease: 'none', duration: t1 - t0 }, t0));
+  $$('.ghostslide', el).forEach(g => tl.fromTo(g, { x: 60 }, { x: -320, ease: 'none', duration: t1 - t0 }, t0));
+  $$('.ghostslide2', el).forEach(g => tl.fromTo(g, { x: -40 }, { x: 260, ease: 'none', duration: t1 - t0 }, t0));
+  return { el, t0, t1 };
+}
+
+// palavra surge cinza e borrada e "acende" — o efeito de texto da referência
+function words(el, t) {
+  const spans = [];
+  const wrap = node => [...node.childNodes].forEach(n => {
+    if (n.nodeType === 3) {
+      const frag = document.createDocumentFragment();
+      n.textContent.split(/(\s+)/).filter(Boolean).forEach(p => {
+        if (/^\s+$/.test(p)) return frag.appendChild(document.createTextNode(p));
+        const s = document.createElement('span'); s.className = 'w'; s.textContent = p; spans.push(s); frag.appendChild(s);
+      });
+      n.replaceWith(frag);
+    } else if (n.nodeType === 1 && !n.classList.contains('w')) wrap(n);
+  });
+  wrap(el);
+  spans.forEach((s, i) => {
+    const ti = t + i * 0.13;
+    tl.fromTo(s, { opacity: 0 }, { opacity: 0.32, duration: 0.04, ease: 'none' }, ti);
+    tl.fromTo(s, { filter: 'blur(6px)' }, { filter: 'blur(0px)', duration: 0.22, ease: 'power2.out' }, ti);
+    tl.to(s, { opacity: 1, duration: 0.22, ease: 'power2.out' }, ti + 0.08);
+  });
+}
+
+function pop(el, t) {
+  tl.fromTo(el, { opacity: 0, scale: 0.86, y: 24 }, { opacity: 1, scale: 1, y: 0, duration: 0.42, ease: 'back.out(2.2)' }, t);
+  SFX.push({ t, k: 'pop' });
+}
+
+function slam(el, t) {
+  tl.fromTo(el, { opacity: 0, scale: 1.9, rotation: -4 }, { opacity: 1, scale: 1, rotation: 0, duration: 0.3, ease: 'expo.out' }, t);
+  tl.fromTo('#s9 .cam', { x: 0, y: 0 }, { keyframes: [{ x: 14, y: -10, duration: .04 }, { x: -10, y: 8, duration: .04 }, { x: 6, y: -4, duration: .04 }, { x: 0, y: 0, duration: .05 }] }, t + 0.05);
+  SFX.push({ t, k: 'impact' });
+}
+
+function bindText(sc) {
+  const line = el => +el.dataset.l;
+  $$('.say', sc.el).forEach(el => words(el, W(line(el), el.dataset.w, el.dataset.s !== undefined ? +el.dataset.s : undefined) - 0.05));
+  $$('.pop', sc.el).forEach(el => pop(el, W(line(el), el.dataset.w) + +(el.dataset.d || 0)));
+  $$('.slam', sc.el).forEach(el => slam(el, W(line(el), el.dataset.w) - 0.03));
+}
+
+const layers = el => $$('.layer', el).map(l => ({ l, d: +l.dataset.depth || 1 }));
+
+// ENTRADA · camadas deslizam lateralmente em velocidades diferentes (parallax + borrão)
+function enterSlide(sc, dir = 1) {
+  layers(sc.el).forEach(({ l, d }) => tl.fromTo(l, { x: -dir * 520 * d }, { x: 0, duration: 0.42 + 0.12 * d, ease: 'expo.out' }, sc.t0));
+  tl.set(sc.el.querySelector('.cam'), { filter: 'url(#mb)' }, sc.t0)
+    .fromTo('#mbx', { attr: { stdDeviation: '46 0' } }, { attr: { stdDeviation: '0 0' }, duration: 0.32, ease: 'power2.out' }, sc.t0)
+    .set(sc.el.querySelector('.cam'), { filter: 'none' }, sc.t0 + 0.33);
+}
+// SAÍDA · chicote lateral com borrão; a entrada seguinte vem do lado oposto
+function exitWhip(sc, dir = 1) {
+  const cam = sc.el.querySelector('.cam'), t = sc.t1 - 0.2;
+  tl.set(cam, { filter: 'url(#mb)' }, t)
+    .to(cam, { x: dir * 760, duration: 0.2, ease: 'power3.in' }, t)
+    .fromTo('#mbx', { attr: { stdDeviation: '0 0' } }, { attr: { stdDeviation: '60 0' }, duration: 0.2, ease: 'power2.in' }, t);
+  SFX.push({ t: sc.t1, k: 'whoosh' });
+}
+// SAÍDA · câmera sobe acelerando, camadas em velocidades diferentes, palavra gigante cresce
+function exitPushUp(sc) {
+  const t = sc.t1 - 0.32;
+  layers(sc.el).forEach(({ l, d }) => tl.to(l, { y: -260 * d, duration: 0.32, ease: 'power3.in' }, t));
+  $$('[data-giant] > *', sc.el).forEach(g => tl.to(g, { scale: 1.5, transformOrigin: '50% 100%', duration: 0.32, ease: 'power3.in' }, t));
+  tl.set(sc.el.querySelector('.cam'), { filter: 'url(#mbv)' }, t + 0.12)
+    .fromTo('#mby', { attr: { stdDeviation: '0 0' } }, { attr: { stdDeviation: '0 26' }, duration: 0.2, ease: 'power2.in' }, t + 0.12);
+  SFX.push({ t: sc.t1, k: 'whoosh' });
+}
+// SAÍDA · mergulho na palavra (zoom exponencial até ela tomar a tela)
+function exitZoom(sc, r) {
+  const t = sc.t1 - 0.34, cam = sc.el.querySelector('.cam');
+  const ox = r.left + r.width * 0.45, oy = r.top + r.height * 0.55;
+  tl.to(cam, { scale: 16, transformOrigin: `${ox}px ${oy}px`, duration: 0.34, ease: 'expo.in' }, t);
+  SFX.push({ t: t + 0.05, k: 'riser', d: 0.3 }, { t: sc.t1, k: 'impact' });
+}
+// SAÍDA · texto some dois quadros antes do corte seco para o preto
+function exitVanish(sc) {
+  tl.to($$('[data-text]', sc.el), { opacity: 0, duration: 0.01 }, sc.t1 - 0.08);
+  SFX.push({ t: sc.t1, k: 'impact' });
+}
+// ENTRADA · do preto, tudo sobe e assenta
+function enterRise(sc) {
+  layers(sc.el).forEach(({ l, d }) => tl.fromTo(l, { y: 160 * d, opacity: 0 }, { y: 0, opacity: 1, duration: 0.55 + 0.1 * d, ease: 'expo.out' }, sc.t0));
+}
+function enterWhip(sc, dir = 1) {
+  const cam = sc.el.querySelector('.cam');
+  tl.set(cam, { filter: 'url(#mb)' }, sc.t0)
+    .fromTo(cam, { x: -dir * 760 }, { x: 0, duration: 0.38, ease: 'expo.out' }, sc.t0)
+    .fromTo('#mbx', { attr: { stdDeviation: '60 0' } }, { attr: { stdDeviation: '0 0' }, duration: 0.3, ease: 'power2.out' }, sc.t0)
+    .set(cam, { filter: 'none' }, sc.t0 + 0.32);
+}
+
+// --- composição ----------------------------------------------------------------
+// o texto ganha um invólucro próprio para a deriva vertical não brigar com as entradas das camadas
+$$('[data-text]').forEach(l => { const w = document.createElement('div'); w.className = 'layer drift-text'; while (l.firstChild) w.appendChild(l.firstChild); l.appendChild(w); });
+// pontos de mergulho medidos antes de qualquer animação deslocar as camadas
+const rect = s => $(s).getBoundingClientRect();
+const ZOOM = { s2: rect('#s2-mais'), s6: rect('#s6-marca') };
+const sc = Object.fromEntries(order.map(id => [id, scene(id)]));
+order.forEach(id => bindText(sc[id]));
+
+// S1 gancho
+enterSlide(sc.s1, 1);
+tl.fromTo('#s1-circle', { scale: 0 }, { scale: 1, duration: 0.7, ease: 'back.out(1.6)' }, 0.1);
+tl.fromTo('#s1-dots', { rotation: 0 }, { rotation: 50, duration: 3, ease: 'none' }, 0);
+['#s1-x1', '#s1-x2'].forEach((p, i) => {
+  const len = $(p).getTotalLength(), t = W(0, 'curso') + 0.25 + i * 0.22;
+  tl.fromTo(p, { strokeDasharray: len, strokeDashoffset: len }, { strokeDashoffset: 0, duration: 0.24, ease: 'power2.out' }, t);
+  SFX.push({ t, k: 'scratch' });
+});
+exitPushUp(sc.s1);
+
+// S2 cinco projetos
+tl.fromTo('#s2-planet', { y: 520, x: -120 }, { y: 0, x: 0, duration: 1.4, ease: 'expo.out' }, T.s2);
+tl.fromTo('#s2-star', { rotation: 0, opacity: 0 }, { rotation: 180, opacity: 1, duration: 2.2, ease: 'none' }, T.s2);
+exitZoom(sc.s2, ZOOM.s2);
+
+// S2b fim de semana
+enterRise(sc.s2b);
+tl.fromTo('#s2b-stamp', { scale: 2.4, opacity: 0, rotation: -20 }, { scale: 1, opacity: 1, rotation: 0, duration: 0.35, ease: 'expo.out' }, W(1, 'semana') - 0.05);
+SFX.push({ t: W(1, 'semana') - 0.05, k: 'impact' });
+
+// S3 painel
+enterSlide(sc.s3, 1);
+exitWhip(sc.s3, 1);
+// S4 cérebro
+enterWhip(sc.s4, 1);
+exitVanish(sc.s4);
+// S5 revisão
+enterRise(sc.s5);
+exitPushUp(sc.s5);
+// S6 marca
+enterRise(sc.s6);
+exitZoom(sc.s6, ZOOM.s6);
+// S7 biblioteca — câmera avança até o livro vermelho
+tl.fromTo('#s7-img', { scale: 1 }, { scale: 1.18, transformOrigin: '42% 45%', duration: end('s7') - T.s7, ease: 'power1.inOut' }, T.s7);
+// S8 começar
+enterSlide(sc.s8, 1);
+{
+  const el = $('#s8-type'), full = el.textContent, t0 = T.s8 + 0.5, cps = 62;
+  const o = { n: 0 };
+  tl.fromTo(o, { n: 0 }, { n: full.length, duration: full.length / cps, ease: 'none', onUpdate: () => { el.textContent = full.slice(0, Math.round(o.n)) + '▍'; } }, t0);
+  SFX.push({ t: t0, k: 'type', d: Math.min(full.length / cps, end('s8') - t0 - 0.3) });
+}
+exitWhip(sc.s8, 1);
+// S9 CTA
+enterWhip(sc.s9, 1);
+exitVanish(sc.s9);
+// S10 assinatura: título, depois o ícone entra com glitch RGB e o título apaga
+{
+  const t = T.s10;
+  words($('#s10-title'), t + 0.1);
+  tl.fromTo('#s10-icon', { scale: 0, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.35, ease: 'back.out(2)' }, t + 0.9);
+  tl.to('#s10-title', { color: '#555', duration: 0.2 }, t + 0.9);
+  tl.fromTo('#s10-icon .g-r', { x: 0 }, { keyframes: [{ x: -16, duration: .05 }, { x: 10, duration: .05 }, { x: -6, duration: .05 }, { x: 0, duration: .08 }] }, t + 0.95);
+  tl.fromTo('#s10-icon .g-c', { x: 0 }, { keyframes: [{ x: 16, duration: .05 }, { x: -10, duration: .05 }, { x: 6, duration: .05 }, { x: 0, duration: .08 }] }, t + 0.95);
+  tl.fromTo('#s10-sub', { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.4, ease: 'power2.out' }, t + 1.1);
+  tl.to('#fade', { opacity: 1, duration: 0.45, ease: 'power1.in' }, DUR - 0.45);
+  SFX.push({ t: t + 0.9, k: 'pop' });
+}
+// cortes que não têm som próprio
+SFX.push({ t: T.s2b, k: 'whoosh' }, { t: T.s7, k: 'whoosh' }, { t: T.s3, k: 'whoosh' }, { t: T.s8, k: 'whoosh' });
+tl.set({}, {}, DUR);
+window.SFX = SFX.sort((a, b) => a.t - b.t);
+window.TIMES = T;
+
+// --- grão de filme determinístico -------------------------------------------
+const g = $('#grain'), gx = g.getContext('2d'), gimg = gx.createImageData(600, 1080);
+function grain(frame) {
+  let seed = 1 + (frame * 7919) % 2147483646;
+  for (let i = 0; i < gimg.data.length; i += 4) {
+    seed = (seed * 16807) % 2147483647;
+    const v = (seed / 2147483647) * 255;
+    gimg.data[i] = gimg.data[i + 1] = gimg.data[i + 2] = v; gimg.data[i + 3] = 255;
+  }
+  gx.putImageData(gimg, 0, 0);
+  g.style.transform = `translate(${-(frame * 37 % 60)}px, ${-(frame * 53 % 60)}px)`;
+}
+
+window.render = t => { tl.seek(t, false); grain(Math.round(t * 30)); };
+render(0);
+
+// modo player: abra com ?play para assistir no navegador com o áudio
+if (location.search.includes('play')) {
+  const fit = () => { const k = Math.min(innerWidth / 1080, innerHeight / 1920); $('#stage').style.transform = `scale(${k})`; document.body.style.width = innerWidth + 'px'; document.body.style.height = innerHeight + 'px'; };
+  fit(); addEventListener('resize', fit);
+  const audio = new Audio('../build/mix.wav');
+  document.body.addEventListener('click', () => { audio.currentTime = 0; audio.play(); });
+  let f = 0;
+  gsap.ticker.add(() => { if (!audio.paused) render(Math.min(audio.currentTime, DUR - 0.001)); });
+}
+</script>
+</body>
+</html>

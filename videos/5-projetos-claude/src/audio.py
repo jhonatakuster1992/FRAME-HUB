@@ -1,14 +1,15 @@
 """Trilha (deep house minimalista, 120 BPM, Lá menor) + efeitos sonoros sintetizados.
 
-Uso: python3 audio.py <sfx.json> <saida.wav>
-Os efeitos vêm do sfx.json exportado pelo video.html, então ficam sincronizados com a animação.
+Uso: python3 audio.py <sfx.json> <narracao.wav> <saida.wav>
+Os efeitos vêm do sfx.json exportado pelo motion.html, então ficam sincronizados com a animação.
+A música abaixa automaticamente enquanto a narração fala.
 """
 import json
 import sys
 import wave
 
 import numpy as np
-from scipy.signal import butter, fftconvolve, sosfilt
+from scipy.signal import butter, fftconvolve, resample_poly, sosfilt
 
 SR = 44100
 DUR = 40.0
@@ -295,25 +296,45 @@ def rms(x):
     return np.sqrt(np.mean(x ** 2))
 
 
+def load_voice(path):
+    with wave.open(path) as w:
+        sr, n, ch, sw = w.getframerate(), w.getnframes(), w.getnchannels(), w.getsampwidth()
+        raw = w.readframes(n)
+    x = np.frombuffer(raw, dtype=np.int16 if sw == 2 else np.int32).astype(np.float64)
+    x = x.reshape(-1, ch).mean(axis=1) / (32768.0 if sw == 2 else 2147483648.0)
+    if sr != SR:
+        from math import gcd
+        g = gcd(SR, sr)
+        x = resample_poly(x, SR // g, sr // g)
+    out = np.zeros(N)
+    out[: min(N, len(x))] = x[:N]
+    return out
+
+
 if __name__ == "__main__":
     events = json.load(open(sys.argv[1]))
+    voice = load_voice(sys.argv[2])
     mus, _ = music()
     fx = sfx_track(events)
     mus /= rms(mus)
     fx /= rms(fx) + 1e-9
-    # efeitos ~10 dB abaixo da música: presentes, sem brigar com a trilha
-    mix = mus * 1.0 + fx * 0.32
-    # fade de entrada/saída
+    voice = hp(voice, 80)
+    voice /= np.sqrt(np.mean(voice[np.abs(voice) > 1e-4] ** 2))
+    # ducking: envelope da voz (suavizado) abaixa a música ~7 dB enquanto ele fala
+    env = np.abs(voice)
+    k = int(0.25 * SR)
+    env = np.convolve(env, np.ones(k) / k, mode="same")
+    duck = 1 - 0.55 * np.clip(env / 0.25, 0, 1)
+    mix = voice[None, :] * 1.0 + mus * 0.30 * duck[None, :] + fx * 0.16
     fade = np.ones(N)
-    fade[: int(0.03 * SR)] = np.linspace(0, 1, int(0.03 * SR))
-    tail = int(1.5 * SR)
+    tail = int(1.0 * SR)
     fade[-tail:] = np.linspace(1, 0, tail) ** 1.5
     mix *= fade
-    mix = np.tanh(mix / np.max(np.abs(mix)) * 1.3) * 0.89
+    mix = np.tanh(mix / np.max(np.abs(mix)) * 1.15) * 0.89
     pcm = (mix.T * 32767).astype(np.int16)
-    with wave.open(sys.argv[2], "wb") as w:
+    with wave.open(sys.argv[3], "wb") as w:
         w.setnchannels(2)
         w.setsampwidth(2)
         w.setframerate(SR)
         w.writeframes(pcm.tobytes())
-    print("ok", sys.argv[2], "rms music/fx dB:", 20 * np.log10(0.32))
+    print("ok", sys.argv[3])
