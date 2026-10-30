@@ -8,14 +8,14 @@ cortadas no fundo, cortes no tempo da batida, *punch-in* a cada corte e grão de
 - `src/video.html`: roteiro e animação (cada `<section>` é uma cena com início e fim em segundos)
 - `src/render.js`: captura quadro a quadro com Playwright e exporta `sfx.json` com o momento de cada efeito
 - `src/audio.py`: trilha deep house (120 BPM, Lá menor) e efeitos sonoros sintetizados e sincronizados com o `sfx.json`
-- `src/prep_images.py`: recorta e trata as imagens a partir dos prints do carrossel
+- `assets/`: imagens geradas no Flow (Nano Banana Pro) a partir dos prompts em `PROMPTS-IMAGENS.md`
 - `render.sh`: gera tudo de novo
 
 ## Trocar as imagens
-As imagens em `assets/` foram recortadas dos prints do carrossel, porque a rede deste ambiente bloqueou
-os bancos de imagens. Para usar outras fotos, substitua os arquivos mantendo o mesmo nome
-(`estatua.jpg`, `relogio.jpg`, `cerebro.jpg`, `paleta.jpg`, `biblioteca.jpg`, `lousa.jpg`)
-e rode `./render.sh`.
+As imagens em `assets/` foram geradas com os prompts de `PROMPTS-IMAGENS.md`.
+Para trocar alguma, substitua o arquivo mantendo o mesmo nome e rode `./render.sh`.
+O texto de cada cena foi posicionado no espaço livre da imagem, então uma imagem nova precisa
+ter a mesma composição.
 
 ## Roteiro
 | tempo | cena |

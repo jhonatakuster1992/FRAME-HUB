@@ -246,6 +246,13 @@ def typing(d):
     return out
 
 
+def scratch():
+    n = int(0.22 * SR)
+    x = bp(rng.standard_normal(n), 1200, 5000)
+    e = np.sin(np.pi * np.linspace(0, 1, n)) ** 0.6 * (0.7 + 0.3 * np.sin(np.linspace(0, 40, n)))
+    return x * e * 0.4
+
+
 def riser(d):
     n = int(d * SR)
     t = np.arange(n) / SR
@@ -273,6 +280,8 @@ def sfx_track(events):
             s, g, pan = ding(), 1.0, 0.0
         elif k == "type":
             s, g, pan = typing(ev["d"]), 0.7, 0.15
+        elif k == "scratch":
+            s, g, pan = scratch(), 0.7, 0.1
         elif k == "riser":
             s, g, pan = riser(ev["d"]), 0.8, 0.0
         else:
